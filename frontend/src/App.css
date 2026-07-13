@@ -1,0 +1,43 @@
+.app-container {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.content-section {
+  padding: 80px 0;
+  background: transparent;
+}
+
+.sage-badge-small {
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  color: var(--sage-green);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.section-title h2 {
+  font-size: 3.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 40px;
+}
+
+.testimonial {
+  max-width: 600px;
+  margin-top: 40px;
+}
+
+.testimonial h3 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: var(--text-main);
+}
+
+.testimonial p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  font-style: italic;
+}

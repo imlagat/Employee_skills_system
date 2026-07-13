@@ -1,0 +1,27 @@
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+
+from apps.employees.models import Department, Position
+
+departments_data = {
+    "Engineering": ["Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "DevOps Engineer"],
+    "Human Resources": ["HR Manager", "Recruiter", "HR Generalist"],
+    "Marketing": ["Marketing Specialist", "Growth Hacker", "Content Strategist"],
+    "Sales": ["Sales Representative", "Account Executive", "Sales Manager"],
+    "Finance": ["Financial Analyst", "Accountant", "Finance Manager"],
+    "Operations": ["Operations Manager", "Operations Analyst"],
+    "Customer Support": ["Customer Support Specialist", "Support Manager"],
+    "Product Management": ["Product Manager", "Senior Product Manager", "Product Owner"],
+    "Design": ["UI/UX Designer", "Product Designer", "Graphic Designer"],
+    "Legal": ["Legal Counsel", "Paralegal"]
+}
+
+for dept_name, positions in departments_data.items():
+    dept, _ = Department.objects.get_or_create(name=dept_name)
+    for pos_name in positions:
+        Position.objects.get_or_create(name=pos_name, department=dept)
+
+print("Seed data loaded successfully!")
