@@ -3,6 +3,7 @@ from .models import TrainingProgram, TrainingEnrollment
 
 class TrainingProgramSerializer(serializers.ModelSerializer):
     seats_taken = serializers.ReadOnlyField()
+    department_name = serializers.CharField(source='department.name', read_only=True)
 
     class Meta:
         model = TrainingProgram

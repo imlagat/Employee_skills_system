@@ -56,13 +56,16 @@ class SignupView(views.APIView):
         otp = OTPVerification.objects.create(user=user)
         
         # Send Email
-        send_mail(
-            'Verify your SkillMatrix Account',
-            f'Welcome to SkillMatrix! Your verification code is: {otp.otp_code}',
-            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
-            [email],
-            fail_silently=False,
-        )
+        try:
+            send_mail(
+                'Verify your SkillMatrix Account',
+                f'Welcome to SkillMatrix! Your verification code is: {otp.otp_code}',
+                settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
+                [email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"\n[Verification Code Debug] Registration OTP for {email}: {otp.otp_code}\n")
         
         return Response({'message': 'User registered. Please check email for OTP.', 'email': email}, status=status.HTTP_201_CREATED)
 

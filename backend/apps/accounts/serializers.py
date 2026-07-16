@@ -15,7 +15,12 @@ class UserSerializer(serializers.ModelSerializer):
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(obj.employee_profile.profile_image.url)
-            return obj.employee_profile.profile_image.url
+            url = obj.employee_profile.profile_image.url
+            if url.startswith('http'):
+                return url
+            if url.startswith('/'):
+                return f"http://localhost:8000{url}"
+            return f"http://localhost:8000/{url}"
         return None
 
     def get_has_completed_profile(self, obj):

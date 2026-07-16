@@ -10,48 +10,83 @@ from .models import Notification
 
 
 @shared_task
-def check_expiring_certifications(days_ahead=30):
+def check_expiring_certifications():
     """
-    Runs daily. Flags certifications expiring within `days_ahead` days
-    (and not already flagged) and creates a Notification + email.
+    Runs daily. Checks for certifications expiring exactly in 30, 20, 10 days,
+    or within 5 days (each day), and sends an email with tailored training programs.
     """
-    today = date.today()
-    threshold = today + timedelta(days=days_ahead)
+    from apps.employees.models import Position, Employee
+    from apps.skills.models import PositionCompetency
+    from apps.training.models import TrainingProgram
 
+    today = date.today()
+    
+    # Fetch all active employee certifications that have an expiry date and are not yet expired
     expiring = EmployeeCertification.objects.filter(
         expiry_date__isnull=False,
         expiry_date__gte=today,
-        expiry_date__lte=threshold,
-    ).select_related('employee__user', 'certification')
+    ).select_related('employee__user', 'employee__department', 'certification')
 
-    from apps.employees.models import Employee
     admins = Employee.objects.filter(user__role='admin', is_active=True)
 
     created = 0
     for cert in expiring:
+        days_remaining = (cert.expiry_date - today).days
+        
+        # Check if today is one of the notification milestones
+        milestones = [30, 20, 10, 5, 4, 3, 2, 1]
+        if days_remaining not in milestones:
+            continue
+
+        message = (
+            f'Your certification "{cert.certification.name}" is expiring in '
+            f'{days_remaining} days on {cert.expiry_date.isoformat()}. Please renew it soon.'
+        )
+        
+        # Avoid duplicate notifications for the same day/milestone
         already_notified = Notification.objects.filter(
             employee=cert.employee,
             notif_type=Notification.NotifType.CERT_EXPIRY,
             related_object_id=cert.id,
+            message=message,
         ).exists()
         if already_notified:
             continue
 
-        message = (
-            f'Your certification "{cert.certification.name}" expires on '
-            f'{cert.expiry_date.isoformat()}. Please renew it soon.'
-        )
+        # Get tailored training programs for the employee's department
+        tailored_trainings = []
+        if cert.employee.department:
+            # Find skills required by positions in this department
+            positions = Position.objects.filter(department=cert.employee.department)
+            dept_skills = PositionCompetency.objects.filter(position__in=positions).values_list('skill_id', flat=True)
+            
+            # Find future trainings targeting any of these skills
+            tailored_trainings = TrainingProgram.objects.filter(
+                start_date__gte=today,
+                target_skills__in=dept_skills
+            ).distinct()[:3]
+
+        training_text = ""
+        if tailored_trainings:
+            training_text = "\n\nHere are some upcoming training programs tailored to your department:\n"
+            for t in tailored_trainings:
+                loc = t.location if t.location else "Online"
+                training_text += f"- {t.title} (Starts {t.start_date.isoformat()}, {loc})\n"
+
+        full_message = message + training_text
+
         Notification.objects.create(
             employee=cert.employee,
             notif_type=Notification.NotifType.CERT_EXPIRY,
-            message=message,
+            message=full_message,
             related_object_id=cert.id,
         )
-        _send_email_safely(cert.employee.user.email, 'Certification Expiring Soon', message)
+        _send_email_safely(cert.employee.user.email, 'Certification Expiring Soon', full_message)
         
+        # Also notify admins
         for admin_emp in admins:
             if admin_emp != cert.employee:
-                admin_msg = f"{cert.employee.full_name}'s certification '{cert.certification.name}' expires on {cert.expiry_date.isoformat()}."
+                admin_msg = f"{cert.employee.full_name}'s certification '{cert.certification.name}' is expiring in {days_remaining} days."
                 Notification.objects.create(
                     employee=admin_emp,
                     notif_type=Notification.NotifType.CERT_EXPIRY,

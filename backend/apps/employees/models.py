@@ -62,6 +62,12 @@ class Employee(models.Model):
     bio = models.TextField(blank=True)
     profile_image = models.ImageField(upload_to='profiles/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    blood_group = models.CharField(max_length=5, blank=True)
+    allergies = models.TextField(blank=True)
+    chronic_illnesses = models.TextField(blank=True)
+    next_of_kin_relationship = models.CharField(max_length=50, blank=True)
+    next_of_kin_name = models.CharField(max_length=150, blank=True)
+    next_of_kin_phone = models.CharField(max_length=30, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -70,6 +76,32 @@ class Employee(models.Model):
 
     def __str__(self):
         return f'{self.user.get_full_name() or self.user.username} - {self.position.name if self.position else "No Position"}'
+
+    def __init__(self, *args, **kwargs):
+        job_title = kwargs.pop('job_title', None)
+        super().__init__(*args, **kwargs)
+        if job_title:
+            self.job_title = job_title
+
+    @property
+    def job_title(self):
+        return self.position.name if self.position else ""
+
+    @job_title.setter
+    def job_title(self, value):
+        if not value:
+            self.position = None
+            return
+        
+        from .models import Position, Department
+        dept = self.department
+        if not dept:
+            dept = Department.objects.first()
+            if not dept:
+                dept = Department.objects.create(name="Default Department")
+        
+        pos, _ = Position.objects.get_or_create(name=value, department=dept)
+        self.position = pos
 
     @property
     def full_name(self):

@@ -2,15 +2,20 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .serializers import EmployeeListSerializer, EmployeeDetailSerializer, EmployeeSerializer, DepartmentSerializer, PositionSerializer, ProfileUpdateRequestSerializer
+from .serializers import EmployeeListSerializer, EmployeeDetailSerializer, EmployeeSerializer, DepartmentSerializer, DepartmentDetailSerializer, PositionSerializer, ProfileUpdateRequestSerializer
 from .models import Employee, Department, Position, ProfileUpdateRequest
 from apps.accounts.permissions import IsManagerUser, IsOwnerOrManager
 
 class DepartmentViewSet(viewsets.ModelViewSet):
-    queryset = Department.objects.all()
+    queryset = Department.objects.prefetch_related('employees__user', 'employees__position', 'positions').all()
     serializer_class = DepartmentSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return DepartmentDetailSerializer
+        return DepartmentSerializer
 
     def get_permissions(self):
         return []
@@ -81,14 +86,18 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             
             # Prevent privilege escalation and restricted field modification by standard employees
             if not is_admin_or_manager:
-                restricted_fields = ['role', 'department', 'position', 'manager', 'is_active', 'employee_id']
+                if employee.position_id is None:
+                    # Onboarding phase: allow setting department and position
+                    restricted_fields = ['role', 'manager', 'is_active', 'employee_id']
+                else:
+                    restricted_fields = ['role', 'department', 'position', 'manager', 'is_active', 'employee_id']
                 for field in restricted_fields:
                     data.pop(field, None)
                     
             serializer = EmployeeSerializer(employee, data=data, partial=True, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data)
+                return Response(EmployeeDetailSerializer(employee, context={'request': request}).data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ProfileUpdateRequestViewSet(viewsets.ModelViewSet):

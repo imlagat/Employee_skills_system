@@ -15,6 +15,40 @@ class TrainingProgramViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         return []
 
+    def get_queryset(self):
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            return TrainingProgram.objects.none()
+            
+        # Admin / Manager / HR sees everything (both archived and active)
+        if getattr(user, 'role', '') in ['admin', 'manager', 'hr']:
+            return TrainingProgram.objects.all()
+            
+        # Standard employees only see active, tailored or general programs
+        from django.db.models import Q
+        qs = TrainingProgram.objects.filter(is_archived=False)
+        if hasattr(user, 'employee_profile') and user.employee_profile.department_id:
+            qs = qs.filter(
+                Q(department__isnull=True) | Q(department_id=user.employee_profile.department_id)
+            )
+        else:
+            qs = qs.filter(department__isnull=True)
+        return qs
+
+    @action(detail=True, methods=['post'])
+    def archive(self, request, pk=None):
+        program = self.get_object()
+        program.is_archived = True
+        program.save()
+        return Response({'status': 'archived', 'is_archived': True})
+
+    @action(detail=True, methods=['post'])
+    def unarchive(self, request, pk=None):
+        program = self.get_object()
+        program.is_archived = False
+        program.save()
+        return Response({'status': 'unarchived', 'is_archived': False})
+
     @action(detail=True, methods=['post'])
     def enroll(self, request, pk=None):
         if getattr(request.user, 'role', '') == 'admin':
