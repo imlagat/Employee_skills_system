@@ -14,6 +14,9 @@ import Competencies from './pages/Competencies';
 import Training from './pages/Training';
 import Certifications from './pages/Certifications';
 import Assessments from './pages/Assessments';
+import CareerPathing from './pages/CareerPathing';
+import SkillsMatrix from './pages/SkillsMatrix';
+import Succession from './pages/Succession';
 import Reports from './pages/Reports';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
@@ -70,6 +73,7 @@ function App() {
         {/* People Module */}
         <Route path="/people/employees" element={<ProtectedRoute><Layout><EmployeeDirectory /></Layout></ProtectedRoute>} />
         <Route path="/people/employees/:id" element={<ProtectedRoute><Layout><EmployeeDetail /></Layout></ProtectedRoute>} />
+        <Route path="/people/skills-matrix" element={<ProtectedRoute><Layout><SkillsMatrix /></Layout></ProtectedRoute>} />
         <Route path="/people/departments" element={<ProtectedRoute><Layout><Departments /></Layout></ProtectedRoute>} />
         <Route path="/people/departments/:id" element={<ProtectedRoute><Layout><DepartmentDetail /></Layout></ProtectedRoute>} />
         <Route path="/people/positions" element={<ProtectedRoute><Layout><Positions /></Layout></ProtectedRoute>} />
@@ -80,12 +84,13 @@ function App() {
         <Route path="/learning/competencies" element={<ProtectedRoute><Layout><Competencies /></Layout></ProtectedRoute>} />
         <Route path="/learning/training" element={<ProtectedRoute><Layout><Training /></Layout></ProtectedRoute>} />
         <Route path="/learning/certifications" element={<ProtectedRoute><Layout><Certifications /></Layout></ProtectedRoute>} />
+        <Route path="/learning/career-pathing" element={<ProtectedRoute><Layout><CareerPathing /></Layout></ProtectedRoute>} />
         
         {/* Performance Module */}
         <Route path="/performance/assessments" element={<ProtectedRoute><Layout><Assessments /></Layout></ProtectedRoute>} />
         {/* Placeholders for new pages routing to Home for now until built */}
         <Route path="/performance/gaps" element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>} />
-        <Route path="/performance/succession" element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>} />
+        <Route path="/performance/succession" element={<ProtectedRoute><Layout><Succession /></Layout></ProtectedRoute>} />
         
         {/* Analytics Module */}
         <Route path="/analytics/reports" element={<ProtectedRoute><Layout><Reports /></Layout></ProtectedRoute>} />

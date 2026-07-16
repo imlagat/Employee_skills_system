@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Search, Plus, Eye, Trash2, Check, X } from 'lucide-react';
+import { Search, Plus, Eye, Edit, Trash2, Check, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useContext } from 'react';
 import toast from 'react-hot-toast';
+import Modal from '../components/Modal';
+import EmployeeForm from '../components/EmployeeForm';
 import './EmployeeDirectory.css';
 
 const EmployeeDirectory = () => {
@@ -16,6 +18,12 @@ const EmployeeDirectory = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('directory'); // directory, pending
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [skills, setSkills] = useState([]);
+  const [employeeSkills, setEmployeeSkills] = useState([]);
+  const [selectedSkillId, setSelectedSkillId] = useState('');
 
   const fetchEmployees = async () => {
     setLoading(true);
@@ -39,18 +47,48 @@ const EmployeeDirectory = () => {
     }
   };
 
+  const fetchSkillsAndMappings = async () => {
+    try {
+      const [skillsRes, mappingsRes] = await Promise.all([
+        api.get('skills/'),
+        api.get('employee-skills/')
+      ]);
+      setSkills(skillsRes.data.results || skillsRes.data || []);
+      setEmployeeSkills(mappingsRes.data.results || mappingsRes.data || []);
+    } catch (e) {
+      console.error("Failed to load skills for filtering", e);
+    }
+  };
+
   useEffect(() => {
     fetchEmployees();
     fetchPendingUpdates();
+    fetchSkillsAndMappings();
   }, [user]);
 
   const handleAddClick = () => {
-    // In the future, this could navigate to a dedicated /people/employees/new page
-    toast.error('Add Employee form moved to dedicated page (Coming soon)');
+    setIsAddModalOpen(true);
+  };
+
+  const handleAddSave = () => {
+    setIsAddModalOpen(false);
+    toast.success('Employee added successfully!');
+    fetchEmployees();
   };
 
   const handleEditClick = (employee) => {
     navigate(`/people/employees/${employee.id}`);
+  };
+
+  const handleEditIconClick = (employee) => {
+    setSelectedEmployee(employee);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSave = () => {
+    setIsEditModalOpen(false);
+    toast.success('Employee updated successfully!');
+    fetchEmployees();
   };
 
   const handleDeleteEmployee = async (empId) => {
@@ -73,10 +111,16 @@ const EmployeeDirectory = () => {
     const deptName = emp.department?.name || '';
     const s = search.toLowerCase();
     
-    return firstName.toLowerCase().includes(s) ||
-           lastName.toLowerCase().includes(s) ||
-           posName.toLowerCase().includes(s) ||
-           deptName.toLowerCase().includes(s);
+    const matchesSearch = firstName.toLowerCase().includes(s) ||
+                          lastName.toLowerCase().includes(s) ||
+                          posName.toLowerCase().includes(s) ||
+                          deptName.toLowerCase().includes(s);
+
+    const matchesSkill = selectedSkillId === '' || employeeSkills.some(
+      es => es.employee === emp.id && es.skill === parseInt(selectedSkillId) && es.proficiency > 0
+    );
+
+    return matchesSearch && matchesSkill;
   });
 
   const handleApproveUpdate = async (id) => {
@@ -134,14 +178,26 @@ const EmployeeDirectory = () => {
         </div>
         
         {activeTab === 'directory' && (
-          <div className="search-box">
-            <Search size={18} className="search-icon" />
-            <input 
-              type="text" 
-              placeholder="Search employees..." 
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <select
+              value={selectedSkillId}
+              onChange={(e) => setSelectedSkillId(e.target.value)}
+              style={{ padding: '8px 12px', background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '8px', color: 'var(--text-main)', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
+            >
+              <option value="">Filter by Skill (All)</option>
+              {skills.map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+            <div className="search-box">
+              <Search size={18} className="search-icon" />
+              <input 
+                type="text" 
+                placeholder="Search employees..." 
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -157,7 +213,13 @@ const EmployeeDirectory = () => {
                   <div className="directory-card" key={emp.id} onClick={() => handleEditClick(emp)} style={{ cursor: 'pointer' }}>
                     <div className="card-header-flex">
                       <div className="employee-card-profile" style={{ marginBottom: 0 }}>
-                        <div className="employee-card-avatar">{emp.user?.first_name?.[0]}{emp.user?.last_name?.[0]}</div>
+                        <div className="employee-card-avatar" style={{ overflow: 'hidden', padding: 0 }}>
+                          {emp.user?.profile_image ? (
+                            <img src={emp.user.profile_image} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <>{emp.user?.first_name?.[0]}{emp.user?.last_name?.[0]}</>
+                          )}
+                        </div>
                         <div className="employee-card-details">
                           <div className="name-text" style={{ fontSize: '1.1rem', fontWeight: 600 }}>{emp.user?.first_name} {emp.user?.last_name}</div>
                           <div className="email-text">{emp.user?.email}</div>
@@ -173,8 +235,11 @@ const EmployeeDirectory = () => {
                     </div>
                     
                     <div className="card-actions">
-                      <button className="icon-btn-small" style={{ color: '#3b82f6' }} onClick={(e) => { e.stopPropagation(); handleEditClick(emp); }} title="View">
+                      <button className="icon-btn-small" style={{ color: '#3b82f6' }} onClick={(e) => { e.stopPropagation(); handleEditClick(emp); }} title="View Details">
                         <Eye size={16} />
+                      </button>
+                      <button className="icon-btn-small" style={{ color: 'var(--accent-orange)' }} onClick={(e) => { e.stopPropagation(); handleEditIconClick(emp); }} title="Edit Employee">
+                        <Edit size={16} />
                       </button>
                       {isAdmin && (
                         <button className="icon-btn-small" style={{ color: '#f87171' }} onClick={(e) => { e.stopPropagation(); handleDeleteEmployee(emp.id); }} title="Delete">
@@ -230,6 +295,19 @@ const EmployeeDirectory = () => {
           </div>
         )}
       </div>
+      <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add New Employee">
+        <EmployeeForm
+          onSave={handleAddSave}
+          onCancel={() => setIsAddModalOpen(false)}
+        />
+      </Modal>
+      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Employee">
+        <EmployeeForm
+          employee={selectedEmployee}
+          onSave={handleEditSave}
+          onCancel={() => setIsEditModalOpen(false)}
+        />
+      </Modal>
     </div>
   );
 };

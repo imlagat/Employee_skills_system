@@ -13,7 +13,27 @@ const Topbar = ({ toggleSidebar }) => {
   const [searchResults, setSearchResults] = useState({ employees: [], skills: [], departments: [] });
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const searchRef = useRef(null);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await api.get('/notifications/');
+      const notifs = res.data.results || res.data;
+      const unread = notifs.filter(n => !n.is_read).length;
+      setUnreadCount(unread);
+    } catch (e) {
+      console.error("Failed to fetch unread count:", e);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+      const interval = setInterval(fetchUnreadCount, 15000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -125,12 +145,14 @@ const Topbar = ({ toggleSidebar }) => {
       </div>
 
       <div className="topbar-right">
-        <button className="notification-btn" title="Notifications">
+        <Link to="/admin/notifications" className="notification-btn" title="Notifications" style={{ color: 'inherit', textDecoration: 'none', position: 'relative', display: 'flex', alignItems: 'center' }}>
           <Bell size={20} className="bell-icon" />
-          <span className="notification-dot">
-            <span className="ping-ring"></span>
-          </span>
-        </button>
+          {unreadCount > 0 && (
+            <span className="notification-dot">
+              <span className="ping-ring"></span>
+            </span>
+          )}
+        </Link>
         
         {user ? (
           <div className="user-profile-menu">
@@ -146,7 +168,9 @@ const Topbar = ({ toggleSidebar }) => {
               </div>
             </Link>
             <div className="user-info-desktop">
-              <span className="user-name">{user.first_name || user.username}</span>
+              <span className="user-name">
+                {user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : user.username}
+              </span>
               <span className="user-role">{user.role}</span>
             </div>
             <button className="icon-btn-dark logout-btn" onClick={handleLogout} title="Logout">

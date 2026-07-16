@@ -18,6 +18,7 @@ const Certifications = ({ employeeId }) => {
     certification_id: '', 
     custom_certification_name: '',
     issue_date: '', 
+    expiry_date: '',
     credential_id: '', 
     document: null 
   });
@@ -70,6 +71,9 @@ const Certifications = ({ employeeId }) => {
       const data = new FormData();
       data.append('certification', finalCertId);
       data.append('issue_date', formData.issue_date);
+      if (formData.expiry_date) {
+        data.append('expiry_date', formData.expiry_date);
+      }
       data.append('credential_id', formData.credential_id);
       if (formData.document) {
         data.append('document', formData.document);
@@ -86,7 +90,7 @@ const Certifications = ({ employeeId }) => {
       
       setTimeout(() => {
         setIsModalOpen(false);
-        setFormData({ certification_id: '', custom_certification_name: '', issue_date: '', credential_id: '', document: null });
+        setFormData({ certification_id: '', custom_certification_name: '', issue_date: '', expiry_date: '', credential_id: '', document: null });
         setUploadStatus('idle');
         setUploadProgress(0);
         fetchEmployeeCerts();
@@ -245,16 +249,18 @@ const Certifications = ({ employeeId }) => {
                   </td>
                   {isManagerOrAdmin && (
                     <td>
-                      {c.verification_status === 'pending' && (
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {(c.verification_status === 'pending' || c.verification_status === 'rejected') && (
                           <button className="icon-btn-small" style={{ color: '#4ade80' }} onClick={() => handleVerify(c.id)} title="Approve">
                             <Check size={16} />
                           </button>
+                        )}
+                        {(c.verification_status === 'pending' || c.verification_status === 'verified') && (
                           <button className="icon-btn-small" style={{ color: '#f87171' }} onClick={() => handleReject(c.id)} title="Reject">
                             <X size={16} />
                           </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </td>
                   )}
                 </tr>
@@ -288,6 +294,10 @@ const Certifications = ({ employeeId }) => {
           <div className="form-group">
             <label>Issue Date</label>
             <input type="date" required value={formData.issue_date} onChange={e => setFormData({...formData, issue_date: e.target.value})} />
+          </div>
+          <div className="form-group">
+            <label>Expiry Date (Optional)</label>
+            <input type="date" value={formData.expiry_date} onChange={e => setFormData({...formData, expiry_date: e.target.value})} />
           </div>
           <div className="form-group">
             <label>Credential ID (Optional)</label>
@@ -343,7 +353,7 @@ const Certifications = ({ employeeId }) => {
           <div className="form-actions">
             <button type="button" className="btn-secondary" onClick={() => {
               setIsModalOpen(false);
-              setFormData({ certification_id: '', custom_certification_name: '', issue_date: '', credential_id: '', document: null });
+              setFormData({ certification_id: '', custom_certification_name: '', issue_date: '', expiry_date: '', credential_id: '', document: null });
               setUploadStatus('idle');
               setUploadProgress(0);
             }} disabled={uploadStatus === 'uploading'}>Cancel</button>

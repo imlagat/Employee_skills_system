@@ -147,12 +147,12 @@
 }
 
 .dept-badge {
-  background-color: rgba(36, 139, 133, 0.2);
-  color: #55efc4;
+  background-color: rgba(36, 139, 133, 0.15);
+  color: #0d7a6e;
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .capitalize {

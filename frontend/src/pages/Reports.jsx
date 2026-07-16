@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { Users, Building, BookOpen, Award, TrendingUp, BarChart2 } from 'lucide-react';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  PieChart, Pie, Legend
+} from 'recharts';
 import './EmployeeDirectory.css';
 import './Reports.css';
 
@@ -72,67 +76,70 @@ const Reports = () => {
         </div>
       </div>
 
-      <div className="charts-grid">
-        <div className="report-panel">
-          <div className="panel-header">
-            <h3><TrendingUp size={18} style={{marginRight: '8px'}} /> Top Skills (By Avg Proficiency)</h3>
+      <div className="charts-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '24px', marginTop: '24px' }}>
+        <div className="report-panel" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '20px' }}>
+          <div className="panel-header" style={{ marginBottom: '20px' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}><TrendingUp size={18} color="var(--accent-orange)" /> Top Skills (By Avg Proficiency)</h3>
           </div>
           <div className="panel-content">
-            <table className="employee-table">
-              <thead>
-                <tr>
-                  <th>Skill Name</th>
-                  <th>Avg Proficiency</th>
-                  <th>Employees</th>
-                </tr>
-              </thead>
-              <tbody>
-                {skillStats.map((stat, idx) => (
-                  <tr key={idx}>
-                    <td style={{ fontWeight: '500' }}>{stat.skill__name}</td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', height: '6px', borderRadius: '4px' }}>
-                          <div style={{ width: `${(stat.avg_proficiency / 5) * 100}%`, background: '#f59e0b', height: '100%', borderRadius: '4px' }}></div>
-                        </div>
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{Number(stat.avg_proficiency).toFixed(1)}/5</span>
-                      </div>
-                    </td>
-                    <td style={{ color: 'var(--text-muted)' }}>{stat.employee_count}</td>
-                  </tr>
-                ))}
-                {skillStats.length === 0 && (
-                  <tr><td colSpan="3" className="empty-state">No skill data available.</td></tr>
-                )}
-              </tbody>
-            </table>
+            {skillStats.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>No skill data available.</div>
+            ) : (
+              <div style={{ width: '100%', height: '320px' }}>
+                <ResponsiveContainer>
+                  <BarChart data={skillStats} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" vertical={false} />
+                    <XAxis dataKey="skill__name" stroke="var(--text-muted)" fontSize={11} tickLine={false} />
+                    <YAxis domain={[0, 5]} tickCount={6} stroke="var(--text-muted)" fontSize={11} tickLine={false} />
+                    <Tooltip 
+                      contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '8px', color: 'var(--text-main)' }}
+                    />
+                    <Bar dataKey="avg_proficiency" name="Avg Proficiency" fill="#3b82f6" radius={[4, 4, 0, 0]}>
+                      {skillStats.map((entry, index) => {
+                        const COLORS = ['#3b82f6', '#10b981', '#4f46e5', '#0d9488', '#8b5cf6', '#334155'];
+                        return <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />;
+                      })}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="report-panel">
-          <div className="panel-header">
-            <h3><BarChart2 size={18} style={{marginRight: '8px'}} /> Certification Distribution</h3>
+        <div className="report-panel" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '20px' }}>
+          <div className="panel-header" style={{ marginBottom: '20px' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}><BarChart2 size={18} color="var(--accent-orange)" /> Certification Distribution</h3>
           </div>
           <div className="panel-content">
-            <table className="employee-table">
-              <thead>
-                <tr>
-                  <th>Certification</th>
-                  <th>Holders</th>
-                </tr>
-              </thead>
-              <tbody>
-                {certStats.map((cert, idx) => (
-                  <tr key={idx}>
-                    <td style={{ fontWeight: '500' }}>{cert.certification__name}</td>
-                    <td style={{ color: 'var(--text-muted)' }}>{cert.count}</td>
-                  </tr>
-                ))}
-                {certStats.length === 0 && (
-                  <tr><td colSpan="2" className="empty-state">No certification data available.</td></tr>
-                )}
-              </tbody>
-            </table>
+            {certStats.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>No certification data available.</div>
+            ) : (
+              <div style={{ width: '100%', height: '320px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={certStats}
+                      dataKey="count"
+                      nameKey="certification__name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      label={({ name, percent }) => `${name.slice(0, 15)}... (${(percent * 100).toFixed(0)}%)`}
+                      labelLine={true}
+                    >
+                      {certStats.map((entry, index) => {
+                        const COLORS = ['#3b82f6', '#10b981', '#4f46e5', '#0d9488', '#8b5cf6', '#334155'];
+                        return <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />;
+                      })}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '8px', color: 'var(--text-main)' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         </div>
       </div>

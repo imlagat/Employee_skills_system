@@ -11,7 +11,8 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
     email: '',
     employee_id: '',
     job_title: '',
-    department_id: '',
+    department: '',
+    hire_date: '',
     role: 'employee'
   });
   const [departments, setDepartments] = useState([]);
@@ -36,7 +37,8 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
         email: employee.user?.email || '',
         employee_id: employee.employee_id || '',
         job_title: employee.job_title || '',
-        department_id: employee.department?.id || '',
+        department: employee.department?.id || '',
+        hire_date: employee.hire_date || '',
         role: employee.user?.role || 'employee'
       });
       fetchCertifications(employee.id);
@@ -95,7 +97,16 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
       }
       onSave();
     } catch (err) {
-      setError(err.response?.data?.detail || 'An error occurred while saving.');
+      const data = err.response?.data;
+      if (data && typeof data === 'object') {
+        // Flatten all field-level errors into a readable string
+        const messages = Object.entries(data)
+          .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+          .join(' | ');
+        setError(messages || 'An error occurred while saving.');
+      } else {
+        setError('An error occurred while saving.');
+      }
     } finally {
       setLoading(false);
     }
@@ -156,7 +167,7 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
       <div className="form-row">
         <div className="form-group">
           <label>Department</label>
-          <select name="department_id" value={formData.department_id} onChange={handleChange} required>
+          <select name="department" value={formData.department} onChange={handleChange}>
             <option value="">Select Department</option>
             {departments.map(dept => (
               <option key={dept.id} value={dept.id}>{dept.name}</option>
@@ -170,6 +181,13 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
             <option value="manager">Manager</option>
             <option value="admin">Admin</option>
           </select>
+        </div>
+      </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label>Hire Date</label>
+          <input type="date" name="hire_date" value={formData.hire_date} onChange={handleChange} required />
         </div>
       </div>
 
@@ -244,12 +262,14 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
                       <span style={{ fontSize: '0.85rem', color: '#555' }}>No file</span>
                     )}
                     
-                    {cert.verification_status === 'pending' && (
-                      <div style={{ display: 'flex', gap: '5px', marginLeft: '10px' }}>
+                    <div style={{ display: 'flex', gap: '5px', marginLeft: '10px' }}>
+                      {(cert.verification_status === 'pending' || cert.verification_status === 'rejected') && (
                         <button type="button" className="btn-primary" style={{ padding: '4px 8px', fontSize: '0.8rem', background: '#4ade80', color: '#000' }} onClick={() => handleVerifyCert(cert.id)}>Verify</button>
+                      )}
+                      {(cert.verification_status === 'pending' || cert.verification_status === 'verified') && (
                         <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.8rem', color: '#f87171', border: '1px solid #f87171' }} onClick={() => handleRejectCert(cert.id)}>Reject</button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

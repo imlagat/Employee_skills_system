@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Briefcase, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Users, Briefcase } from 'lucide-react';
 import api from '../api/axios';
 import './EmployeeDetail.css'; // Reusing the same CSS for layout consistency
+import './EmployeeDirectory.css';
 
 const DepartmentDetail = () => {
   const { id } = useParams();
@@ -101,17 +102,97 @@ const DepartmentDetail = () => {
             )}
             
             {activeTab === 'employees' && (
-              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                <Users size={32} style={{ marginBottom: '10px', opacity: '0.5' }} />
-                <p>Employee Roster will be embedded here.</p>
-              </div>
+              department.employees && department.employees.length > 0 ? (
+                <div className="directory-card-grid">
+                  {department.employees.map(emp => (
+                    <div 
+                      className="directory-card" 
+                      key={emp.id} 
+                      onClick={() => navigate(`/people/employees/${emp.id}`)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className="card-header-flex">
+                        <div className="employee-card-profile" style={{ marginBottom: 0 }}>
+                          <div className="employee-card-avatar" style={{ overflow: 'hidden', padding: 0 }}>
+                            {emp.user?.profile_image ? (
+                              <img src={emp.user.profile_image} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <>{emp.user?.first_name?.[0] || ''}{emp.user?.last_name?.[0] || ''}</>
+                            )}
+                          </div>
+                          <div className="employee-card-details">
+                            <div className="name-text" style={{ fontSize: '1.1rem', fontWeight: 600 }}>
+                              {emp.user?.first_name} {emp.user?.last_name}
+                            </div>
+                            <div className="email-text">{emp.user?.email}</div>
+                          </div>
+                        </div>
+                        <span className="card-badge capitalize">{emp.user?.role || 'Employee'}</span>
+                      </div>
+                      
+                      <div className="card-body" style={{ marginTop: '10px' }}>
+                        <div className="detail-row" style={{ marginBottom: '8px' }}>
+                          <strong>ID:</strong> {emp.employee_id}
+                        </div>
+                        <div className="detail-row" style={{ marginBottom: '8px' }}>
+                          <strong>Title:</strong> {emp.position?.name || 'N/A'}
+                        </div>
+                        <div className="detail-row">
+                          <strong>Status:</strong> <span style={{ color: emp.is_active ? '#4ade80' : '#f87171' }}>{emp.is_active ? 'Active' : 'Inactive'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                  <Users size={32} style={{ marginBottom: '10px', opacity: '0.5' }} />
+                  <p>No employees currently assigned to this department.</p>
+                </div>
+              )
             )}
 
             {activeTab === 'positions' && (
-              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                <Briefcase size={32} style={{ marginBottom: '10px', opacity: '0.5' }} />
-                <p>Positions List will be embedded here.</p>
-              </div>
+              department.positions && department.positions.length > 0 ? (
+                <div className="directory-card-grid">
+                  {department.positions.map(pos => {
+                    const count = department.employees?.filter(emp => emp.position?.id === pos.id).length || 0;
+                    return (
+                      <div 
+                        className="directory-card" 
+                        key={pos.id}
+                        style={{ cursor: 'default' }}
+                      >
+                        <div className="card-header-flex">
+                          <div className="card-title-group">
+                            <h3 style={{ margin: 0, fontSize: '1.15rem' }}>{pos.name}</h3>
+                          </div>
+                          <span 
+                            className="card-badge" 
+                            style={{ 
+                              background: count > 0 ? 'rgba(74, 222, 128, 0.15)' : 'rgba(239, 68, 68, 0.15)', 
+                              color: count > 0 ? '#4ade80' : '#ef4444' 
+                            }}
+                          >
+                            {count > 0 ? `${count} Assigned` : 'Vacant'}
+                          </span>
+                        </div>
+                        
+                        <div className="card-body" style={{ marginTop: '10px' }}>
+                          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                            {pos.description || "No description provided for this position."}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                  <Briefcase size={32} style={{ marginBottom: '10px', opacity: '0.5' }} />
+                  <p>No positions currently defined for this department.</p>
+                </div>
+              )
             )}
         </div>
       </div>

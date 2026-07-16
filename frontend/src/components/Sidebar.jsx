@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Building, Briefcase, 
   BookOpen, Target, GraduationCap, Award,
-  Activity, TrendingUp, Network,
+  Activity, TrendingUp, Network, Compass, LayoutGrid,
   BarChart2, PieChart,
   Bell, Settings, Menu, X
 } from 'lucide-react';
@@ -26,6 +26,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       restricted: true,
       items: [
         { label: 'Employees', icon: <Users size={18} />, path: '/people/employees' },
+        { label: 'Skills Heatmap', icon: <LayoutGrid size={18} />, path: '/people/skills-matrix' },
         { label: 'Departments', icon: <Building size={18} />, path: '/people/departments' },
         { label: 'Positions', icon: <Briefcase size={18} />, path: '/people/positions' }
       ]
@@ -36,8 +37,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         { label: 'Skills Catalog', icon: <BookOpen size={18} />, path: '/learning/skills' },
         { label: 'Competency Framework', icon: <Target size={18} />, path: '/learning/competencies', restricted: true },
         { label: 'Assessments', icon: <Activity size={18} />, path: '/performance/assessments', restricted: true },
+        { label: 'Succession Planning', icon: <Network size={18} />, path: '/performance/succession', restricted: true },
         { label: 'Training Programs', icon: <GraduationCap size={18} />, path: '/learning/training' },
         { label: 'Certifications', icon: <Award size={18} />, path: '/learning/certifications' },
+        { label: 'Career Pathing', icon: <Compass size={18} />, path: '/learning/career-pathing' },
       ]
     },
     {

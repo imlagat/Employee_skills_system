@@ -9,7 +9,7 @@ import './EmployeeDirectory.css';
 import './Settings.css';
 
 const Settings = () => {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const isManagerOrAdmin = user?.role === 'manager' || user?.role === 'admin' || user?.role === 'hr';
   const fileInputRef = useRef(null);
   const location = useLocation();
@@ -18,7 +18,8 @@ const Settings = () => {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [profileData, setProfileData] = useState({
-    first_name: '', last_name: '', email: '', phone: '', position: '', bio: '', profile_image_preview: null, profile_image_file: null
+    first_name: '', last_name: '', email: '', phone: '', position: '', bio: '', profile_image_preview: null, profile_image_file: null,
+    blood_group: '', allergies: '', chronic_illnesses: '', next_of_kin_relationship: '', next_of_kin_name: '', next_of_kin_phone: ''
   });
   
   const [notifications, setNotifications] = useState({
@@ -39,7 +40,13 @@ const Settings = () => {
           position: d.position?.name || 'Unassigned',
           bio: d.bio || '',
           profile_image_preview: d.user?.profile_image || d.profile_image || null,
-          profile_image_file: null
+          profile_image_file: null,
+          blood_group: d.blood_group || '',
+          allergies: d.allergies || '',
+          chronic_illnesses: d.chronic_illnesses || '',
+          next_of_kin_relationship: d.next_of_kin_relationship || '',
+          next_of_kin_name: d.next_of_kin_name || '',
+          next_of_kin_phone: d.next_of_kin_phone || ''
         });
       }).catch(e => console.error("Could not fetch profile", e));
     }
@@ -52,6 +59,12 @@ const Settings = () => {
     formData.append('email', profileData.email);
     formData.append('phone', profileData.phone);
     formData.append('bio', profileData.bio);
+    formData.append('blood_group', profileData.blood_group);
+    formData.append('allergies', profileData.allergies);
+    formData.append('chronic_illnesses', profileData.chronic_illnesses);
+    formData.append('next_of_kin_relationship', profileData.next_of_kin_relationship);
+    formData.append('next_of_kin_name', profileData.next_of_kin_name);
+    formData.append('next_of_kin_phone', profileData.next_of_kin_phone);
     if (profileData.profile_image_file) {
       formData.append('profile_image', profileData.profile_image_file);
     }
@@ -61,6 +74,9 @@ const Settings = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       toast.success('Profile synced to database successfully!');
+      if (response.data && response.data.user) {
+        setUser(response.data.user);
+      }
     } catch (e) {
       toast.error('Failed to save profile');
     }
@@ -136,6 +152,41 @@ const Settings = () => {
                   <label>Bio</label>
                   <textarea rows="3" value={profileData.bio} onChange={e => setProfileData({...profileData, bio: e.target.value})}></textarea>
                 </div>
+
+                {/* Part 2: Medical Bio Data */}
+                <div style={{ gridColumn: '1 / -1', margin: '20px 0 10px 0', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
+                  <h4 style={{ color: 'var(--text-main)', margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>🩺 Medical Bio Data</h4>
+                </div>
+                <div className="form-group">
+                  <label>Blood Group</label>
+                  <input type="text" placeholder="e.g. B+, O-" value={profileData.blood_group} onChange={e => setProfileData({...profileData, blood_group: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Allergies</label>
+                  <input type="text" placeholder="e.g. dust, penicillin" value={profileData.allergies} onChange={e => setProfileData({...profileData, allergies: e.target.value})} />
+                </div>
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label>Chronic Illnesses</label>
+                  <input type="text" placeholder="e.g. asthma, none" value={profileData.chronic_illnesses} onChange={e => setProfileData({...profileData, chronic_illnesses: e.target.value})} />
+                </div>
+
+                {/* Part 3: Emergency Contacts */}
+                <div style={{ gridColumn: '1 / -1', margin: '20px 0 10px 0', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
+                  <h4 style={{ color: 'var(--text-main)', margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>❤️ Emergency Contact Details</h4>
+                </div>
+                <div className="form-group">
+                  <label>Next of Kin Relationship</label>
+                  <input type="text" placeholder="e.g. Spouse, Sibling, Parent" value={profileData.next_of_kin_relationship} onChange={e => setProfileData({...profileData, next_of_kin_relationship: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Next of Kin Name</label>
+                  <input type="text" placeholder="Next of Kin's Full Name" value={profileData.next_of_kin_name} onChange={e => setProfileData({...profileData, next_of_kin_name: e.target.value})} />
+                </div>
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label>Next of Kin Contact (Phone)</label>
+                  <input type="tel" placeholder="Next of Kin's phone number" value={profileData.next_of_kin_phone} onChange={e => setProfileData({...profileData, next_of_kin_phone: e.target.value})} />
+                </div>
+
               </div>
             </div>
             <button className="settings-btn-save" onClick={handleProfileSave}>

@@ -209,6 +209,7 @@ input:checked + .slider:before {
 
 .profile-details-section {
   flex: 1;
+  min-width: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;

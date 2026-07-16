@@ -108,7 +108,7 @@ const Skills = ({ employeeId }) => {
           <div key={es.id} className="skill-card">
             <div className="skill-card-header">
               <h3 className="skill-card-title">{es.skill_name}</h3>
-              <span className="status-badge" style={{ backgroundColor: 'rgba(0,214,101,0.2)', color: '#1e293b', fontWeight: 'bold' }}>
+              <span style={{ color: 'var(--text-secondary)', fontSize: 'inherit', fontWeight: 'inherit' }}>
                 {es.skill_category || 'Uncategorized'}
               </span>
             </div>
@@ -234,7 +234,7 @@ const Skills = ({ employeeId }) => {
                 <div className="skill-card-header">
                   <div>
                     <h3 className="skill-card-title">{skill.name}</h3>
-                    <span className="status-badge" style={{ backgroundColor: 'rgba(0,214,101,0.2)', color: '#1e293b', marginTop: '8px', display: 'inline-block', fontWeight: 'bold' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: 'inherit', fontWeight: 'inherit', marginTop: '8px', display: 'inline-block' }}>
                       {skill.category || 'Uncategorized'}
                     </span>
                   </div>
