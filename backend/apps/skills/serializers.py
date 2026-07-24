@@ -10,6 +10,7 @@ class EmployeeSkillSerializer(serializers.ModelSerializer):
     skill_name = serializers.CharField(source='skill.name', read_only=True)
     skill_category = serializers.CharField(source='skill.category', read_only=True)
     proficiency_display = serializers.CharField(source='get_proficiency_display', read_only=True)
+    verification_status_display = serializers.CharField(source='get_verification_status_display', read_only=True)
 
     class Meta:
         model = EmployeeSkill

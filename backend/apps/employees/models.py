@@ -127,3 +127,104 @@ class ProfileUpdateRequest(models.Model):
 
     def __str__(self):
         return f"Update Request for {self.employee.full_name} ({self.get_status_display()})"
+
+
+class LeaveRequest(models.Model):
+    class LeaveType(models.TextChoices):
+        ANNUAL = 'annual', 'Annual Leave'
+        SICK = 'sick', 'Sick Leave'
+        PERSONAL = 'personal', 'Personal Leave'
+        UNPAID = 'unpaid', 'Unpaid Leave'
+
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pending Approval'
+        APPROVED = 'approved', 'Approved'
+        REJECTED = 'rejected', 'Rejected'
+
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='leave_requests')
+    leave_type = models.CharField(max_length=20, choices=LeaveType.choices, default=LeaveType.ANNUAL)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_leaves')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Leave Request for {self.employee.full_name} ({self.get_status_display()})"
+
+
+class AbsenceReport(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pending Approval'
+        APPROVED = 'approved', 'Approved'
+        REJECTED = 'rejected', 'Rejected'
+
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='absence_reports')
+    date = models.DateField()
+    reason = models.TextField()
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_absences')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Absence Report for {self.employee.full_name} on {self.date} ({self.get_status_display()})"
+
+
+class Complaint(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pending Review'
+        REVIEWED = 'reviewed', 'Reviewed'
+        RESOLVED = 'resolved', 'Resolved'
+
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='complaints')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Complaint: {self.title} from {self.employee.full_name} ({self.get_status_display()})"
+
+
+class Gig(models.Model):
+    class GigType(models.TextChoices):
+        MICRO_PROJECT = 'micro_project', 'Micro Project'
+        MENTORSHIP = 'mentorship', 'Peer Mentorship'
+        CROSS_FUNCTIONAL = 'cross_functional', 'Cross Functional Task'
+
+    class Status(models.TextChoices):
+        OPEN = 'open', 'Open'
+        IN_PROGRESS = 'in_progress', 'In Progress'
+        COMPLETED = 'completed', 'Completed'
+        CANCELLED = 'cancelled', 'Cancelled'
+
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    gig_type = models.CharField(max_length=30, choices=GigType.choices, default=GigType.MICRO_PROJECT)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.OPEN)
+    required_skills = models.ManyToManyField('skills.Skill', blank=True, related_name='gigs')
+    created_by = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='created_gigs')
+    assigned_to = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_gigs')
+    estimated_hours = models.PositiveIntegerField(default=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.get_gig_type_display()}) - {self.get_status_display()}"
+

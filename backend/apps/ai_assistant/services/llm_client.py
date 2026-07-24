@@ -8,8 +8,8 @@ class LLMClient:
     This avoids dependencies on google-genai which may fail due to cryptography/rust issues on macOS.
     """
     def __init__(self):
-        self.api_key = settings.GEMINI_API_KEY
-        # default to gemini-2.5-flash for speed and context window
+        self.api_key = getattr(settings, 'GEMINI_API_KEY', None)
+        # default to gemini-2.5-flash
         self.model = 'gemini-2.5-flash'
         self.base_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
 

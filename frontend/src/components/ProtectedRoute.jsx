@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children }) => {
   // Admin bypass
   if (user.role === 'admin') {
     if (location.pathname === '/complete-profile') {
-      return <Navigate to="/" replace />;
+      return <Navigate to="/dashboard" replace />;
     }
     return children;
   }
@@ -34,7 +34,7 @@ const ProtectedRoute = ({ children }) => {
 
   // Don't allow access to complete profile if already done
   if (user.has_completed_profile && location.pathname === '/complete-profile') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Briefcase, CheckCircle, MapPin, Users, Activity, Target, Clock, Award, BrainCircuit } from 'lucide-react';
+import { ArrowLeft, Edit, Briefcase, CheckCircle, MapPin, Users, Activity, Target, Clock, Award, BrainCircuit, FileText } from 'lucide-react';
 import api from '../api/axios';
 import Skills from './Skills';
 import Training from './Training';
@@ -19,6 +19,9 @@ const EmployeeDetail = () => {
   const { user } = useContext(AuthContext);
   const [employee, setEmployee] = useState(null);
   const [skills, setSkills] = useState([]);
+  const [leaves, setLeaves] = useState([]);
+  const [absences, setAbsences] = useState([]);
+  const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdvisorOpen, setIsAdvisorOpen] = useState(false);
@@ -61,6 +64,25 @@ const EmployeeDetail = () => {
       ]);
       setEmployee(empRes.data);
       setSkills(skillsRes.data.results || skillsRes.data || []);
+
+      // Fetch HR logs safely
+      try {
+        const leaveRes = await api.get(`/leave-requests/?employee=${id}`);
+        setLeaves(leaveRes.data.results || leaveRes.data || []);
+      } catch (e) { console.error(e); }
+
+      try {
+        const absRes = await api.get(`/absence-reports/?employee=${id}`);
+        setAbsences(absRes.data.results || absRes.data || []);
+      } catch (e) { console.error(e); }
+
+      const isHRorAdmin = user?.role === 'admin' || user?.role === 'hr';
+      if (isHRorAdmin) {
+        try {
+          const compRes = await api.get(`/complaints/?employee=${id}`);
+          setComplaints(compRes.data.results || compRes.data || []);
+        } catch (e) { console.error(e); }
+      }
     } catch (err) {
       console.error("Failed to load employee details", err);
     } finally {
@@ -253,6 +275,60 @@ const EmployeeDetail = () => {
             <h3 className="passport-section-title"><Award size={18}/> Certifications</h3>
             <Certifications employeeId={employee.id} />
           </div>
+
+          {/* Leaves & Absences History */}
+          <div className="passport-section">
+            <h3 className="passport-section-title"><ArrowLeft size={18} style={{ transform: 'rotate(-90deg)' }}/> Leaves & Absences History</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <h4 style={{ fontSize: '0.9rem', marginBottom: '8px', opacity: 0.8 }}>Leaves</h4>
+                {leaves.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {leaves.map(item => (
+                      <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(0,0,0,0.02)', border: '1px solid var(--border-light)', borderRadius: '6px', fontSize: '0.85rem' }}>
+                        <span className="capitalize">{item.leave_type} Leave</span>
+                        <span style={{ color: 'var(--text-muted)' }}>📅 {item.start_date} to {item.end_date}</span>
+                        <span className={`status-badge ${item.status}`} style={{ transform: 'scale(0.85)' }}>{item.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : <p className="text-muted" style={{ fontSize: '0.85rem' }}>No leaves logged.</p>}
+              </div>
+
+              <div>
+                <h4 style={{ fontSize: '0.9rem', marginBottom: '8px', opacity: 0.8 }}>Absences</h4>
+                {absences.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {absences.map(item => (
+                      <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(0,0,0,0.02)', border: '1px solid var(--border-light)', borderRadius: '6px', fontSize: '0.85rem' }}>
+                        <span>Reported Absence</span>
+                        <span style={{ color: 'var(--text-muted)' }}>📅 Date: {item.date}</span>
+                        <span className={`status-badge ${item.status}`} style={{ transform: 'scale(0.85)' }}>{item.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : <p className="text-muted" style={{ fontSize: '0.85rem' }}>No absences logged.</p>}
+              </div>
+            </div>
+          </div>
+
+          {/* Confidential Complaints (Visible strictly to HR/Admin) */}
+          {(user?.role === 'admin' || user?.role === 'hr') && (
+            <div className="passport-section">
+              <h3 className="passport-section-title"><FileText size={18}/> Confidential Complaints (Admin Only)</h3>
+              {complaints.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {complaints.map(item => (
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(0,0,0,0.02)', border: '1px solid var(--border-light)', borderRadius: '6px', fontSize: '0.85rem' }}>
+                      <span style={{ fontWeight: 600 }}>{item.title}</span>
+                      <span style={{ color: 'var(--text-muted)' }}>Logged on {new Date(item.created_at).toLocaleDateString()}</span>
+                      <span className={`status-badge ${item.status}`} style={{ transform: 'scale(0.85)' }}>{item.status}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="text-muted" style={{ fontSize: '0.85rem' }}>No complaints filed.</p>}
+            </div>
+          )}
         </div>
       </div>
 

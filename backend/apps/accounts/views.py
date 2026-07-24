@@ -161,3 +161,32 @@ class PasswordResetRequestView(views.APIView):
         # In a real app, generate token and send email here
         # For now, just return success
         return Response({'message': 'Password reset instructions have been sent to your email.'})
+
+
+class ImpersonateView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if request.user.role != 'admin':
+            return Response({'error': 'Only administrators can impersonate employees.'}, status=status.HTTP_403_FORBIDDEN)
+            
+        username = request.data.get('username')
+        passcode = request.data.get('passcode')
+        
+        if not username or not passcode:
+            return Response({'error': 'Username and passcode are required.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        expected_passcode = getattr(settings, 'ADMIN_IMPERSONATE_PASSCODE', '1234')
+        if str(passcode) != str(expected_passcode):
+            return Response({'error': 'Invalid passcode.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            target_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+            
+        refresh = RefreshToken.for_user(target_user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })

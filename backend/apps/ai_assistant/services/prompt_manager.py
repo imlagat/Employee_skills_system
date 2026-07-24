@@ -23,7 +23,7 @@ class AIAnalysisService:
         1. Identify missing skills (where current_level < required_level, or skill is completely missing).
         2. Identify strengths (where current_level >= required_level).
         3. Calculate a readiness percentage (0-100) based on how many required competencies are met.
-        4. Write a concise 2-sentence recommendation for their next learning step.
+        4. Write an extremely short 1-sentence recommendation for their next learning step.
         """
 
         schema = {
@@ -60,7 +60,7 @@ class AIAnalysisService:
         Task:
         1. Evaluate the employee's overall profile.
         2. Assign a promotion_score (0-100).
-        3. Provide a 2-sentence reason.
+        3. Provide an extremely short 1-sentence reason.
         4. Suggest the recommended_next_step (e.g. 'Leadership Training', 'Obtain AWS Cert').
         """
 

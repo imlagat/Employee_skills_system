@@ -23,11 +23,20 @@ class EmployeeSkill(models.Model):
         ADVANCED = 4, 'Advanced'
         EXPERT = 5, 'Expert'
 
+    class VerificationStatus(models.TextChoices):
+        SELF_ASSESSED = 'self_assessed', 'Self Assessed'
+        MANAGER_VERIFIED = 'manager_verified', 'Manager Verified'
+        AI_VALIDATED = 'ai_validated', 'AI Validated'
+
     employee = models.ForeignKey(
         'employees.Employee', on_delete=models.CASCADE, related_name='skills'
     )
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE, related_name='employee_links')
     proficiency = models.IntegerField(choices=Proficiency.choices, default=Proficiency.BEGINNER)
+    verification_status = models.CharField(
+        max_length=20, choices=VerificationStatus.choices, default=VerificationStatus.SELF_ASSESSED
+    )
+    confidence_score = models.IntegerField(default=75, help_text="Skill confidence percentage (0-100)")
     last_assessed = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True)
 

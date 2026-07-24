@@ -248,6 +248,24 @@ const CareerPathing = () => {
                     Company Skills
                   </button>
                   <button 
+                    onClick={() => setActiveRoadmapTab('ai_coach')}
+                    style={{
+                      padding: '6px 12px',
+                      background: activeRoadmapTab === 'ai_coach' ? 'var(--accent-purple, #8b5cf6)' : 'transparent',
+                      border: '1px solid var(--border-light)',
+                      borderRadius: '6px',
+                      color: activeRoadmapTab === 'ai_coach' ? 'white' : 'var(--text-muted)',
+                      fontSize: '0.8rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    ✨ AI 30-60-90 Day Plan
+                  </button>
+                  <button 
                     onClick={() => setActiveRoadmapTab('roadmap_sh')}
                     style={{
                       padding: '6px 12px',
@@ -318,7 +336,7 @@ const CareerPathing = () => {
                                 </span>
                               ) : (
                                 <span style={{ color: gap <= 1 ? '#f68b1f' : '#ef4444', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem', fontWeight: '600' }}>
-                                  <AlertTriangle size={16} /> Gap of {gap}
+                                  <AlertTriangle size={16} /> Gap: {gap} Level{gap > 1 ? 's' : ''}
                                 </span>
                               )}
                             </div>
@@ -328,6 +346,27 @@ const CareerPathing = () => {
                     })}
                   </div>
                 )
+              ) : activeRoadmapTab === 'ai_coach' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <div style={{ background: 'var(--bg-dark)', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '12px', padding: '16px' }}>
+                    <h4 style={{ margin: '0 0 8px 0', color: '#c084fc', fontSize: '1rem' }}>📅 Month 1 (Days 1–30): Foundation & Skill Gap Auditing</h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                      Complete foundational internal training courses for <strong>{targetPos.name}</strong>. Focus on critical skills with the largest gap sizes.
+                    </p>
+                  </div>
+                  <div style={{ background: 'var(--bg-dark)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', padding: '16px' }}>
+                    <h4 style={{ margin: '0 0 8px 0', color: '#60a5fa', fontSize: '1rem' }}>🚀 Month 2 (Days 31–60): Internal Micro-Gigs & Practical Execution</h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                      Claim 1–2 internal micro-projects on the Gig Marketplace to apply newly acquired competencies in real projects.
+                    </p>
+                  </div>
+                  <div style={{ background: 'var(--bg-dark)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '16px' }}>
+                    <h4 style={{ margin: '0 0 8px 0', color: '#34d399', fontSize: '1rem' }}>🏆 Month 3 (Days 61–90): 360 Assessment & Manager Verification</h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                      Schedule a formal 360 skills assessment with your manager to verify proficiency progression and confirm promotion readiness.
+                    </p>
+                  </div>
+                </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', position: 'relative', paddingLeft: '24px', borderLeft: '2px dashed var(--border-light)' }}>
                   {getRoadmapShTopics(targetPos.name).map((topic, idx) => {

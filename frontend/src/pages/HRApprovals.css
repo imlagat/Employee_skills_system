@@ -1,0 +1,226 @@
+/* HRApprovals.css - Styles for HR Approval dashboard */
+
+.hr-approvals-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.approvals-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .approvals-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.approvals-main-card {
+  padding: 30px;
+  min-height: 400px;
+}
+
+.tab-content-wrapper h3 {
+  font-size: 1.3rem;
+  color: var(--text-main);
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 10px;
+}
+
+.approvals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.approval-card-item {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-sm);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+[data-theme="dark"] .approval-card-item {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-item-left {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.user-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(246, 139, 31, 0.1);
+  color: var(--accent-orange, #f68b1f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-icon-circle.purple {
+  background: rgba(168, 85, 247, 0.1);
+  color: #a855f7;
+}
+
+.card-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.employee-name-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.leave-meta-tag {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-muted);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin: 2px 0;
+}
+
+[data-theme="dark"] .leave-meta-tag {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.date-range-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.reason-text {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  opacity: 0.85;
+  font-style: italic;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.complaint-title-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.submitting-employee {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.complaint-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Actions styling */
+.card-item-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.card-item-actions.vertical {
+  flex-direction: column;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.action-btn.approve {
+  background: #22c55e;
+  color: #ffffff;
+}
+
+.action-btn.approve:hover {
+  background: #16a34a;
+}
+
+.action-btn.reject {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.action-btn.reject:hover {
+  background: #dc2626;
+}
+
+.action-btn.resolve {
+  background: var(--accent-orange, #f68b1f);
+  color: #ffffff;
+}
+
+.action-btn.resolve:hover {
+  background: var(--accent-orange-hover, #e57a15);
+}
+
+/* Restricted warning styles */
+.restricted-warning-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  padding: 40px 20px;
+  background: rgba(246, 139, 31, 0.03);
+  border: 1px dashed var(--border-light);
+  border-radius: var(--border-radius-md);
+  margin-top: 20px;
+}
+
+.restricted-warning-box h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.restricted-warning-box p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* Sidebar lists styling */
+.history-approvals-card {
+  padding: 30px;
+}
+
+.history-approvals-card h3 {
+  font-size: 1.2rem;
+  color: var(--text-main);
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 10px;
+}

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Employee, Department, Position, ProfileUpdateRequest
+from .models import Employee, Department, Position, ProfileUpdateRequest, LeaveRequest, AbsenceReport, Complaint, Gig
 from apps.accounts.serializers import UserSerializer
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -103,4 +103,49 @@ class ProfileUpdateRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfileUpdateRequest
         fields = '__all__'
+
+
+class LeaveRequestSerializer(serializers.ModelSerializer):
+    employee_name = serializers.CharField(source='employee.full_name', read_only=True)
+    reviewed_by_name = serializers.CharField(source='reviewed_by.get_full_name', read_only=True)
+
+    class Meta:
+        model = LeaveRequest
+        fields = '__all__'
+        extra_kwargs = {'employee': {'required': False}}
+
+
+class AbsenceReportSerializer(serializers.ModelSerializer):
+    employee_name = serializers.CharField(source='employee.full_name', read_only=True)
+    reviewed_by_name = serializers.CharField(source='reviewed_by.get_full_name', read_only=True)
+
+    class Meta:
+        model = AbsenceReport
+        fields = '__all__'
+        extra_kwargs = {'employee': {'required': False}}
+
+
+class ComplaintSerializer(serializers.ModelSerializer):
+    employee_name = serializers.CharField(source='employee.full_name', read_only=True)
+
+    class Meta:
+        model = Complaint
+        fields = '__all__'
+        extra_kwargs = {'employee': {'required': False}}
+
+
+class GigSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
+    assigned_to_name = serializers.CharField(source='assigned_to.full_name', read_only=True)
+    gig_type_display = serializers.CharField(source='get_gig_type_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    required_skill_names = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field='name', source='required_skills'
+    )
+
+    class Meta:
+        model = Gig
+        fields = '__all__'
+        extra_kwargs = {'created_by': {'required': False}}
+
 

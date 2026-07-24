@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Plus, Check, X, BookOpen, Edit, Archive, Trash2 } from 'lucide-react';
+import { Plus, Check, X, BookOpen, Edit, Archive, Trash2, Sparkles, Globe } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import { AuthContext } from '../context/AuthContext';
@@ -9,6 +10,7 @@ import './EmployeeDirectory.css';
 const Training = ({ employeeId }) => {
   const { user } = useContext(AuthContext);
   const isManagerOrAdmin = user?.role === 'manager' || user?.role === 'admin' || user?.role === 'hr';
+  const location = useLocation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ title: '', description: '', location: '', start_date: '', end_date: '', capacity: '', department: '' });
@@ -19,7 +21,10 @@ const Training = ({ employeeId }) => {
   const [editingProgram, setEditingProgram] = useState(null);
   const [userEmployeeProfile, setUserEmployeeProfile] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
-  const [activeTab, setActiveTab] = useState(employeeId ? 'enrollments' : 'catalog');
+  const [activeTab, setActiveTab] = useState(employeeId ? 'enrollments' : (location.state?.activeTab || 'catalog'));
+
+  const [recommendations, setRecommendations] = useState(null);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
   useEffect(() => {
     if (!employeeId) {
@@ -64,6 +69,44 @@ const Training = ({ employeeId }) => {
       setEnrollments(res.data.results || res.data);
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const fetchRecommendations = async () => {
+    try {
+      setLoadingRecommendations(true);
+      const res = await api.get('training/recommendations/');
+      setRecommendations(res.data);
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to load AI recommendations.");
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'recommendations') {
+      fetchRecommendations();
+    }
+  }, [activeTab]);
+
+  const handleImportAndEnroll = async (scrapedCourse) => {
+    try {
+      toast.loading("Importing course and enrolling...", { id: 'importing' });
+      await api.post('training/import-scraped/', {
+        title: scrapedCourse.title,
+        description: scrapedCourse.description,
+        platform: scrapedCourse.platform,
+        target_skills: scrapedCourse.target_skills
+      });
+      toast.success("Successfully enrolled in online course!", { id: 'importing' });
+      fetchEnrollments();
+      fetchPrograms();
+      setActiveTab('enrollments');
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to import and enroll in course.", { id: 'importing' });
     }
   };
 
@@ -210,6 +253,14 @@ const Training = ({ employeeId }) => {
             >
               Course Catalog
             </div>
+            {!isManagerOrAdmin && (
+              <div 
+                onClick={() => setActiveTab('recommendations')}
+                style={{ padding: '10px', cursor: 'pointer', color: activeTab === 'recommendations' ? 'var(--accent-orange)' : '#aaa', borderBottom: activeTab === 'recommendations' ? '2px solid var(--accent-orange)' : '2px solid transparent', fontWeight: activeTab === 'recommendations' ? 'bold' : 'normal' }}
+              >
+                ✨ AI Recommended Training
+              </div>
+            )}
             <div 
               onClick={() => setActiveTab('enrollments')}
               style={{ padding: '10px', cursor: 'pointer', color: activeTab === 'enrollments' ? 'var(--accent-orange)' : '#aaa', borderBottom: activeTab === 'enrollments' ? '2px solid var(--accent-orange)' : '2px solid transparent', fontWeight: activeTab === 'enrollments' ? 'bold' : 'normal' }}
@@ -301,6 +352,106 @@ const Training = ({ employeeId }) => {
               )}
             </div>
           </>
+        )}
+
+        {activeTab === 'recommendations' && (
+          <div style={{ marginTop: '10px' }}>
+            {loadingRecommendations ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px', gap: '15px' }}>
+                <Sparkles size={40} className="spinning" style={{ color: 'var(--accent-orange)' }} />
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>AI is analyzing your profile, recent assessments, and department gaps...</p>
+              </div>
+            ) : recommendations ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                
+                {/* Identified Gaps Section */}
+                <div style={{ background: 'linear-gradient(135deg, rgba(246, 139, 31, 0.05) 0%, rgba(30, 41, 59, 0.02) 100%)', border: '1px solid rgba(246, 139, 31, 0.2)', borderRadius: '12px', padding: '20px' }}>
+                  <h3 style={{ margin: '0 0 10px 0', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.1rem' }}>
+                    <Sparkles size={18} color="var(--accent-orange)" /> AI Skill Assessment & Area Gaps
+                  </h3>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '15px' }}>
+                    Based on your position requirements and recent assessments in your area (<strong>{recommendations.department || 'General'}</strong>), the system has identified the following skills that could benefit from development:
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    {recommendations.gaps.map(gap => (
+                      <div key={gap.skill_id} style={{ backgroundColor: 'var(--bg-dark)', border: '1px solid var(--border-light)', borderRadius: '20px', padding: '6px 14px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                        <strong>{gap.skill_name}</strong> (Required: {gap.required_level}/5 | Current: {gap.current_level}/5)
+                      </div>
+                    ))}
+                    {recommendations.gaps.length === 0 && (
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>No competency gaps identified! You are fully aligned.</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Internal Recommended Trainings */}
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', color: 'var(--text-main)', marginBottom: '15px' }}>Internal Training Recommendations</h3>
+                  {recommendations.internal_recommendations.length > 0 ? (
+                    <div className="training-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                      {recommendations.internal_recommendations.map(p => (
+                        <div key={p.id} style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+                          <h4 style={{ fontSize: '1.1rem', color: 'var(--text-main)', margin: '0 0 5px 0' }}>{p.title}</h4>
+                          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.description}</p>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '6px', margin: '10px 0' }}>
+                            <div>📍 Location: {p.location || 'Online'}</div>
+                            <div>📅 Date: {p.start_date}</div>
+                          </div>
+                          <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid var(--border-light)' }}>
+                            <button className="btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={() => handleEnroll(p.id)}>
+                              <BookOpen size={16} /> Enroll Now
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>No internal training programs target your gap skills at the moment.</p>
+                  )}
+                </div>
+
+                {/* Scraped Web Course Recommendations */}
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', color: 'var(--text-main)', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Globe size={18} color="var(--accent-orange)" /> Suggested Online Web Courses
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '15px' }}>
+                    Crawled automatically from external platforms to help close your competency gaps. Clicking enroll will instantly import and record the course.
+                  </p>
+                  <div className="training-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                    {recommendations.scraped_courses.map((course, idx) => (
+                      <div key={idx} style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 'bold', padding: '3px 8px', borderRadius: '4px', backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                            {course.platform}
+                          </span>
+                        </div>
+                        <h4 style={{ fontSize: '1.1rem', color: 'var(--text-main)', margin: '0' }}>{course.title}</h4>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{course.description}</p>
+                        
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', margin: '5px 0' }}>
+                          {course.target_skills.map(s => (
+                            <span key={s} style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#a78bfa', padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid var(--border-light)' }}>
+                          <button className="btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={() => handleImportAndEnroll(course)}>
+                            <Globe size={16} /> Import & Enroll
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Could not load recommendations.</div>
+            )}
+          </div>
         )}
 
         {activeTab === 'enrollments' && (

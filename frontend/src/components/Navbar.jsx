@@ -24,7 +24,7 @@ const Navbar = () => {
     <>
       <nav className="global-dark-navbar" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
         <div className="nav-container-single">
-        <Link to="/" className="logo-dark">
+        <Link to="/dashboard" className="logo-dark">
           <div className="logo-icon-dark">§</div>
           <span>SkillMatrix</span>
         </Link>

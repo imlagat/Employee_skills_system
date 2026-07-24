@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Settings as SettingsIcon, Bell, Shield, Sliders, Moon, Sun, Check } from 'lucide-react';
+import { Settings as SettingsIcon, Bell, Shield, Sliders, Moon, Sun, Check, Users } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
 import Modal from '../components/Modal';
@@ -9,10 +9,15 @@ import './EmployeeDirectory.css';
 import './Settings.css';
 
 const Settings = () => {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, setUser, impersonateUser } = useContext(AuthContext);
   const isManagerOrAdmin = user?.role === 'manager' || user?.role === 'admin' || user?.role === 'hr';
   const fileInputRef = useRef(null);
   const location = useLocation();
+
+  const [employeesList, setEmployeesList] = useState([]);
+  const [targetUsername, setTargetUsername] = useState('');
+  const [passcode, setPasscode] = useState('');
+  const [submittingSwitch, setSubmittingSwitch] = useState(false);
   
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'appearance');
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
@@ -49,6 +54,22 @@ const Settings = () => {
           next_of_kin_phone: d.next_of_kin_phone || ''
         });
       }).catch(e => console.error("Could not fetch profile", e));
+    }
+  }, [activeTab, user]);
+
+  useEffect(() => {
+    if (activeTab === 'switch-account' && user?.role === 'admin') {
+      api.get('/employees/').then(res => {
+        const list = res.data.results || res.data || [];
+        const filtered = list.filter(emp => emp.user?.username !== user?.username);
+        setEmployeesList(filtered);
+        if (filtered.length > 0) {
+          setTargetUsername(filtered[0].user?.username || '');
+        }
+      }).catch(err => {
+        console.error("Could not fetch employees for impersonation", err);
+        toast.error("Failed to load employee list.");
+      });
     }
   }, [activeTab, user]);
 
@@ -96,6 +117,86 @@ const Settings = () => {
   const handleSave = () => {
     // In a real app, this would save to user preferences in DB
     toast.success("Settings saved successfully!");
+  };
+
+  const renderSwitchAccountTab = () => {
+    const handleImpersonateSubmit = async (e) => {
+      e.preventDefault();
+      if (!targetUsername) {
+        toast.error("Please select an employee.");
+        return;
+      }
+      if (!passcode) {
+        toast.error("Please enter the passcode.");
+        return;
+      }
+      try {
+        setSubmittingSwitch(true);
+        await impersonateUser(targetUsername, passcode);
+        toast.success("Successfully logged in as employee!");
+        window.location.href = '/dashboard';
+      } catch (err) {
+        console.error(err);
+        toast.error(err.response?.data?.error || "Failed to switch account.");
+      } finally {
+        setSubmittingSwitch(false);
+      }
+    };
+
+    return (
+      <>
+        <div className="settings-section-header">
+          <h3>Admin Account Switch</h3>
+          <p>Impersonate any employee profile to view and manage their talent passport.</p>
+        </div>
+        
+        <form onSubmit={handleImpersonateSubmit} className="employee-form" style={{ maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className="form-group">
+            <label htmlFor="target-employee-select">Select Employee Account</label>
+            <select
+              id="target-employee-select"
+              value={targetUsername}
+              onChange={e => setTargetUsername(e.target.value)}
+              style={{ padding: '12px', borderRadius: '8px' }}
+            >
+              {employeesList.length > 0 ? (
+                employeesList.map(emp => (
+                  <option key={emp.id} value={emp.user?.username}>
+                    {emp.user?.first_name || emp.user?.last_name 
+                      ? `${emp.user.first_name} ${emp.user.last_name}` 
+                      : emp.user?.username} ({emp.user?.role?.toUpperCase()} - {emp.department?.name || 'No Dept'})
+                  </option>
+                ))
+              ) : (
+                <option value="">No employees available</option>
+              )}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="passcode-input">Enter Admin Impersonation Passcode</label>
+            <input
+              id="passcode-input"
+              type="password"
+              placeholder="Enter passcode"
+              value={passcode}
+              onChange={e => setPasscode(e.target.value)}
+              style={{ padding: '12px', borderRadius: '8px' }}
+              autoComplete="off"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            className="btn-primary" 
+            style={{ width: '100%', padding: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '10px' }}
+            disabled={submittingSwitch}
+          >
+            {submittingSwitch ? 'Switching...' : 'Switch to Account'}
+          </button>
+        </form>
+      </>
+    );
   };
 
   const renderContent = () => {
@@ -374,6 +475,9 @@ const Settings = () => {
           </>
         );
 
+      case 'switch-account':
+        return renderSwitchAccountTab();
+
       default:
         return null;
     }
@@ -423,6 +527,14 @@ const Settings = () => {
               >
                 <Shield size={18} /> Security & Privacy
               </button>
+              {user?.role === 'admin' && (
+                <button 
+                  className={`settings-nav-btn ${activeTab === 'switch-account' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('switch-account')}
+                >
+                  <Users size={18} /> Switch Account
+                </button>
+              )}
             </>
           )}
         </div>

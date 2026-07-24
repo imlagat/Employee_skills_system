@@ -57,6 +57,8 @@ class DashboardInsightView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 from .services.chat_service import ChatService
+from .services.flight_risk_service import FlightRiskService
+from apps.skills.models import Skill, EmployeeSkill
 
 class AIChatView(APIView):
     permission_classes = [IsAuthenticated]
@@ -71,3 +73,53 @@ class AIChatView(APIView):
         data = service.handle_query(request.user, query, is_manager)
         
         return Response(data, status=status.HTTP_200_OK)
+
+
+class FlightRiskAnalysisView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        service = FlightRiskService()
+        data = service.generate_organization_risk_radar()
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class ResumeParseAndApplyView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if 'file' not in request.FILES:
+            return Response({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        file_obj = request.FILES['file']
+        auto_apply = request.data.get('auto_apply', 'false').lower() in ['true', '1']
+
+        extractor = DocumentExtractor()
+        extracted = extractor.process_document(file_obj)
+
+        if "error" in extracted:
+            return Response(extracted, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        if auto_apply and hasattr(request.user, 'employee_profile'):
+            emp = request.user.employee_profile
+            skills_added = []
+            for skill_name in extracted.get('extracted_skills', []):
+                skill, _ = Skill.objects.get_or_create(
+                    name=skill_name.strip(),
+                    defaults={'category': 'Technical Skills', 'rating': 3}
+                )
+                es, created = EmployeeSkill.objects.get_or_create(
+                    employee=emp,
+                    skill=skill,
+                    defaults={
+                        'proficiency': 3,
+                        'verification_status': EmployeeSkill.VerificationStatus.AI_VALIDATED,
+                        'confidence_score': 90
+                    }
+                )
+                skills_added.append(skill.name)
+            extracted['auto_applied'] = True
+            extracted['skills_added'] = skills_added
+
+        return Response(extracted, status=status.HTTP_200_OK)
+

@@ -99,8 +99,8 @@ const Skills = ({ employeeId }) => {
   const renderGapsTable = () => (
     <>
       <div style={{ padding: '20px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '8px', marginBottom: '20px' }}>
-        <h3 style={{ margin: '0 0 10px 0', color: 'var(--text-primary)' }}>My Current Skills</h3>
-        <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Skills and proficiencies currently logged on your profile.</p>
+        <h3 style={{ margin: '0 0 10px 0', color: 'var(--text-main)' }}>My Current Skills</h3>
+        <p style={{ margin: 0, color: 'var(--text-muted)' }}>Skills and proficiencies currently logged on your profile.</p>
       </div>
       
       <div className="skills-grid" style={{ marginBottom: '40px' }}>
@@ -108,7 +108,7 @@ const Skills = ({ employeeId }) => {
           <div key={es.id} className="skill-card">
             <div className="skill-card-header">
               <h3 className="skill-card-title">{es.skill_name}</h3>
-              <span style={{ color: 'var(--text-secondary)', fontSize: 'inherit', fontWeight: 'inherit' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: 'inherit', fontWeight: 'inherit' }}>
                 {es.skill_category || 'Uncategorized'}
               </span>
             </div>
@@ -136,8 +136,8 @@ const Skills = ({ employeeId }) => {
       {gapsData ? (
         <>
           <div style={{ padding: '20px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '8px', marginBottom: '20px' }}>
-            <h3 style={{ margin: '0 0 10px 0', color: 'var(--text-primary)' }}>Competency Gaps for {gapsData.position}</h3>
-            <p style={{ margin: 0, color: 'var(--text-secondary)' }}>These are the skills required for the position where proficiency is below the required level.</p>
+            <h3 style={{ margin: '0 0 10px 0', color: 'var(--text-main)' }}>Competency Gaps for {gapsData.position}</h3>
+            <p style={{ margin: 0, color: 'var(--text-muted)' }}>These are the skills required for the position where proficiency is below the required level.</p>
           </div>
           <table className="directory-table">
             <thead>
@@ -234,7 +234,7 @@ const Skills = ({ employeeId }) => {
                 <div className="skill-card-header">
                   <div>
                     <h3 className="skill-card-title">{skill.name}</h3>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: 'inherit', fontWeight: 'inherit', marginTop: '8px', display: 'inline-block' }}>
+                    <span style={{ color: 'var(--text-muted)', fontSize: 'inherit', fontWeight: 'inherit', marginTop: '8px', display: 'inline-block' }}>
                       {skill.category || 'Uncategorized'}
                     </span>
                   </div>

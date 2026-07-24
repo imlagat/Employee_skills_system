@@ -18,7 +18,9 @@
   
   --white: #ffffff;
   --text-main: #0f172a; /* Slate 900 */
+  --text-primary: var(--text-main);
   --text-muted: #64748b; /* Slate 500 */
+  --text-secondary: var(--text-muted);
   --border-light: #e2e8f0; /* Slate 200 */
   
   /* Input Customizations */
@@ -43,7 +45,9 @@
   --form-bg: #1e293b;
 
   --text-main: #f8fafc;
+  --text-primary: var(--text-main);
   --text-muted: #94a3b8;
+  --text-secondary: var(--text-muted);
   --border-light: #334155;
 
   --input-bg: #0f172a;
@@ -304,4 +308,17 @@ input[type="file"]::file-selector-button:hover {
 
 .google-avatar-ring.large {
   padding: 5px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinning {
+  animation: spin 1.5s linear infinite;
 }

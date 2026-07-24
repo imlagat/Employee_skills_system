@@ -2,9 +2,20 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .serializers import EmployeeListSerializer, EmployeeDetailSerializer, EmployeeSerializer, DepartmentSerializer, DepartmentDetailSerializer, PositionSerializer, ProfileUpdateRequestSerializer
-from .models import Employee, Department, Position, ProfileUpdateRequest
+from django.db.models import Q
+from apps.accounts.models import User
+from apps.notifications.models import Notification
+from .serializers import (
+    EmployeeListSerializer, EmployeeDetailSerializer, EmployeeSerializer,
+    DepartmentSerializer, DepartmentDetailSerializer, PositionSerializer,
+    ProfileUpdateRequestSerializer, LeaveRequestSerializer, AbsenceReportSerializer,
+    ComplaintSerializer, GigSerializer
+)
+from .models import Employee, Department, Position, ProfileUpdateRequest, LeaveRequest, AbsenceReport, Complaint, Gig
 from apps.accounts.permissions import IsManagerUser, IsOwnerOrManager
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
+import uuid
 
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.prefetch_related('employees__user', 'employees__position', 'positions').all()
@@ -249,3 +260,266 @@ class ProfileUpdateRequestViewSet(viewsets.ModelViewSet):
             'position': employee.position.name,
             'gaps': gaps
         })
+
+
+class LeaveRequestViewSet(viewsets.ModelViewSet):
+    serializer_class = LeaveRequestSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['employee']
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role in ['admin', 'hr']:
+            return LeaveRequest.objects.all()
+        elif user.role == 'manager':
+            return LeaveRequest.objects.filter(
+                Q(employee__manager__user=user) | Q(employee__user=user)
+            )
+        else:
+            if hasattr(user, 'employee_profile'):
+                return LeaveRequest.objects.filter(employee=user.employee_profile)
+            return LeaveRequest.objects.none()
+
+    def perform_create(self, serializer):
+        try:
+            employee = self.request.user.employee_profile
+        except Employee.DoesNotExist:
+            from django.utils import timezone
+            employee = Employee.objects.create(
+                user=self.request.user,
+                employee_id=f"EMP-{uuid.uuid4().hex[:6].upper()}",
+                hire_date=timezone.now().date()
+            )
+        leave_request = serializer.save(employee=employee)
+        
+        notify_users = User.objects.filter(role__in=['admin', 'hr'])
+        notify_employees = list(Employee.objects.filter(user__in=notify_users))
+        if employee.manager and employee.manager not in notify_employees:
+            notify_employees.append(employee.manager)
+            
+        for emp in notify_employees:
+            Notification.objects.create(
+                employee=emp,
+                notif_type=Notification.NotifType.GENERAL,
+                message=f"New Leave Request from {employee.full_name}"
+            )
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        if instance.status != 'pending':
+            raise ValidationError("You cannot update a leave request that has already been actioned.")
+        serializer.save()
+
+    @action(detail=True, methods=['post'], url_path='approve')
+    def approve(self, request, pk=None):
+        if request.user.role not in ['admin', 'hr', 'manager']:
+            return Response({'error': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        leave_request = self.get_object()
+        leave_request.status = LeaveRequest.Status.APPROVED
+        leave_request.reviewed_by = request.user
+        leave_request.save()
+
+        Notification.objects.create(
+            employee=leave_request.employee,
+            notif_type=Notification.NotifType.GENERAL,
+            message=f"Your Leave Request from {leave_request.start_date} to {leave_request.end_date} has been Approved."
+        )
+        return Response(LeaveRequestSerializer(leave_request).data)
+
+    @action(detail=True, methods=['post'], url_path='reject')
+    def reject(self, request, pk=None):
+        if request.user.role not in ['admin', 'hr', 'manager']:
+            return Response({'error': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        leave_request = self.get_object()
+        leave_request.status = LeaveRequest.Status.REJECTED
+        leave_request.reviewed_by = request.user
+        leave_request.save()
+
+        Notification.objects.create(
+            employee=leave_request.employee,
+            notif_type=Notification.NotifType.GENERAL,
+            message=f"Your Leave Request from {leave_request.start_date} to {leave_request.end_date} has been Rejected."
+        )
+        return Response(LeaveRequestSerializer(leave_request).data)
+
+
+class AbsenceReportViewSet(viewsets.ModelViewSet):
+    serializer_class = AbsenceReportSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['employee']
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role in ['admin', 'hr']:
+            return AbsenceReport.objects.all()
+        elif user.role == 'manager':
+            return AbsenceReport.objects.filter(
+                Q(employee__manager__user=user) | Q(employee__user=user)
+            )
+        else:
+            if hasattr(user, 'employee_profile'):
+                return AbsenceReport.objects.filter(employee=user.employee_profile)
+            return AbsenceReport.objects.none()
+
+    def perform_create(self, serializer):
+        try:
+            employee = self.request.user.employee_profile
+        except Employee.DoesNotExist:
+            from django.utils import timezone
+            employee = Employee.objects.create(
+                user=self.request.user,
+                employee_id=f"EMP-{uuid.uuid4().hex[:6].upper()}",
+                hire_date=timezone.now().date()
+            )
+        absence = serializer.save(employee=employee)
+        
+        notify_users = User.objects.filter(role__in=['admin', 'hr'])
+        notify_employees = list(Employee.objects.filter(user__in=notify_users))
+        if employee.manager and employee.manager not in notify_employees:
+            notify_employees.append(employee.manager)
+            
+        for emp in notify_employees:
+            Notification.objects.create(
+                employee=emp,
+                notif_type=Notification.NotifType.GENERAL,
+                message=f"New Absence Report from {employee.full_name} for {absence.date}"
+            )
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        if instance.status != 'pending':
+            raise ValidationError("You cannot update an absence report that has already been actioned.")
+        serializer.save()
+
+    @action(detail=True, methods=['post'], url_path='approve')
+    def approve(self, request, pk=None):
+        if request.user.role not in ['admin', 'hr', 'manager']:
+            return Response({'error': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        absence = self.get_object()
+        absence.status = AbsenceReport.Status.APPROVED
+        absence.reviewed_by = request.user
+        absence.save()
+
+        Notification.objects.create(
+            employee=absence.employee,
+            notif_type=Notification.NotifType.GENERAL,
+            message=f"Your Absence Report for {absence.date} has been Approved."
+        )
+        return Response(AbsenceReportSerializer(absence).data)
+
+    @action(detail=True, methods=['post'], url_path='reject')
+    def reject(self, request, pk=None):
+        if request.user.role not in ['admin', 'hr', 'manager']:
+            return Response({'error': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        absence = self.get_object()
+        absence.status = AbsenceReport.Status.REJECTED
+        absence.reviewed_by = request.user
+        absence.save()
+
+        Notification.objects.create(
+            employee=absence.employee,
+            notif_type=Notification.NotifType.GENERAL,
+            message=f"Your Absence Report for {absence.date} has been Rejected."
+        )
+        return Response(AbsenceReportSerializer(absence).data)
+
+
+class ComplaintViewSet(viewsets.ModelViewSet):
+    serializer_class = ComplaintSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['employee']
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role in ['admin', 'hr']:
+            return Complaint.objects.all()
+        else:
+            if hasattr(user, 'employee_profile'):
+                return Complaint.objects.filter(employee=user.employee_profile)
+            return Complaint.objects.none()
+
+    def perform_create(self, serializer):
+        try:
+            employee = self.request.user.employee_profile
+        except Employee.DoesNotExist:
+            from django.utils import timezone
+            employee = Employee.objects.create(
+                user=self.request.user,
+                employee_id=f"EMP-{uuid.uuid4().hex[:6].upper()}",
+                hire_date=timezone.now().date()
+            )
+        serializer.save(employee=employee)
+        
+        notify_users = User.objects.filter(role__in=['admin', 'hr'])
+        notify_employees = Employee.objects.filter(user__in=notify_users)
+        for emp in notify_employees:
+            Notification.objects.create(
+                employee=emp,
+                notif_type=Notification.NotifType.GENERAL,
+                message="A new confidential HR complaint has been logged."
+            )
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        if instance.status != 'pending':
+            raise ValidationError("You cannot update a complaint that has already been actioned.")
+        serializer.save()
+
+
+class GigViewSet(viewsets.ModelViewSet):
+    queryset = Gig.objects.select_related('created_by__user', 'assigned_to__user').prefetch_related('required_skills').all()
+    serializer_class = GigSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        try:
+            employee = self.request.user.employee_profile
+        except Employee.DoesNotExist:
+            from django.utils import timezone
+            employee = Employee.objects.create(
+                user=self.request.user,
+                employee_id=f"EMP-{uuid.uuid4().hex[:6].upper()}",
+                hire_date=timezone.now().date()
+            )
+        serializer.save(created_by=employee)
+
+    @action(detail=True, methods=['post'], url_path='apply')
+    def apply(self, request, pk=None):
+        gig = self.get_object()
+        try:
+            employee = request.user.employee_profile
+        except Employee.DoesNotExist:
+            return Response({'error': 'Employee profile required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        gig.assigned_to = employee
+        gig.status = Gig.Status.IN_PROGRESS
+        gig.save()
+
+        Notification.objects.create(
+            employee=gig.created_by,
+            notif_type=Notification.NotifType.GENERAL,
+            message=f"{employee.full_name} claimed gig: '{gig.title}'"
+        )
+        return Response(GigSerializer(gig).data)
+
+    @action(detail=True, methods=['post'], url_path='complete')
+    def complete(self, request, pk=None):
+        gig = self.get_object()
+        gig.status = Gig.Status.COMPLETED
+        gig.save()
+
+        if gig.assigned_to:
+            Notification.objects.create(
+                employee=gig.assigned_to,
+                notif_type=Notification.NotifType.GENERAL,
+                message=f"Gig '{gig.title}' marked as completed! Great job."
+            )
+        return Response(GigSerializer(gig).data)
+

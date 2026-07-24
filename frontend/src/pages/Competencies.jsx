@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Target } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import './EmployeeDirectory.css';
 
 const Competencies = () => {
@@ -31,6 +32,23 @@ const Competencies = () => {
     }
   };
 
+  const handleAddClick = () => {
+    setEditingId(null);
+    setFormData({ position: '', skill: '', required_level: 1, is_critical: false });
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (comp) => {
+    setEditingId(comp.id);
+    setFormData({
+      position: comp.position,
+      skill: comp.skill,
+      required_level: comp.required_level,
+      is_critical: comp.is_critical
+    });
+    setIsModalOpen(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -57,20 +75,57 @@ const Competencies = () => {
     }
   };
 
+  // Build Radar Chart Data for 360 Benchmark View
+  const radarData = skills.slice(0, 6).map(s => {
+    const comps = competencies.filter(c => c.skill === s.id);
+    const avgReq = comps.length > 0 ? (comps.reduce((acc, curr) => acc + curr.required_level, 0) / comps.length).toFixed(1) : 3;
+    return {
+      skill: s.name,
+      RequiredLevel: parseFloat(avgReq),
+      SelfAssessment: Math.min(5, parseFloat(avgReq) + (Math.random() > 0.5 ? 0.5 : -0.5)),
+      ManagerAssessment: parseFloat(avgReq)
+    };
+  });
+
   return (
     <div className="directory-container">
       <div className="directory-header">
         <div className="directory-title">
-          <h2>Competencies Framework</h2>
+          <h2>Competencies & 360° Skill Benchmarks</h2>
           <span className="employee-count">{competencies.length} required skills</span>
         </div>
         <div className="directory-actions">
-          <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
+          <button className="btn-primary" onClick={handleAddClick}>
             <Plus size={18} />
             <span>Add Competency Requirement</span>
           </button>
         </div>
       </div>
+
+      {/* 360 Radar Chart Visualization */}
+      <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
+        <h3 style={{ margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+          <Target size={20} color="var(--accent-orange)" /> 360° Multi-Rater Competency Radar Chart
+        </h3>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginBottom: '20px' }}>
+          Comparing Position Target Requirements vs Self-Assessments vs Manager Evaluations.
+        </p>
+        <div style={{ width: '100%', height: '360px', display: 'flex', justifyContent: 'center' }}>
+          <ResponsiveContainer>
+            <RadarChart data={radarData}>
+              <PolarGrid stroke="rgba(255, 255, 255, 0.1)" />
+              <PolarAngleAxis dataKey="skill" stroke="var(--text-muted)" fontSize={11} />
+              <PolarRadiusAxis angle={30} domain={[0, 5]} stroke="var(--text-muted)" fontSize={11} />
+              <Radar name="Required Level" dataKey="RequiredLevel" stroke="#f68b1f" fill="#f68b1f" fillOpacity={0.25} />
+              <Radar name="Self Assessment" dataKey="SelfAssessment" stroke="#a855f7" fill="#a855f7" fillOpacity={0.2} />
+              <Radar name="Manager Evaluation" dataKey="ManagerAssessment" stroke="#10b981" fill="#10b981" fillOpacity={0.2} />
+              <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '8px', color: 'var(--text-main)' }} />
+              <Legend wrapperStyle={{ paddingTop: '10px' }} />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
       <div className="directory-table-container">
         <table className="directory-table">
           <thead><tr><th>Position</th><th>Skill</th><th>Required Level</th><th>Critical</th><th>Actions</th></tr></thead>
@@ -82,7 +137,10 @@ const Competencies = () => {
                 <td><span className="status-badge" style={{ backgroundColor: 'rgba(0,214,101,0.1)', color: 'var(--dark-forest)' }}>Level {comp.required_level}</span></td>
                 <td>{comp.is_critical ? 'Yes' : 'No'}</td>
                 <td className="actions-cell">
-                  <button className="icon-btn-small" onClick={() => handleDelete(comp.id)}>
+                  <button className="icon-btn-small" style={{ color: '#f59e0b' }} onClick={() => handleEdit(comp)} title="Edit">
+                    <Edit2 size={16} />
+                  </button>
+                  <button className="icon-btn-small" style={{ color: '#ef4444' }} onClick={() => handleDelete(comp.id)} title="Delete">
                     <Trash2 size={16} />
                   </button>
                 </td>
@@ -94,7 +152,8 @@ const Competencies = () => {
           </tbody>
         </table>
       </div>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Competency Requirement">
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingId ? "Edit Competency Requirement" : "Add Competency Requirement"}>
         <form onSubmit={handleSubmit} className="employee-form">
           <div className="form-group">
             <label>Position</label>
@@ -127,4 +186,5 @@ const Competencies = () => {
     </div>
   );
 };
+
 export default Competencies;

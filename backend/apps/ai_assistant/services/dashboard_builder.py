@@ -29,8 +29,8 @@ class DashboardAIService:
         
         system_instruction = (
             "You are an expert HR Executive Assistant. "
-            "Given the high-level metrics of the organization, write a compelling, concise 3-sentence executive summary. "
-            "Highlight the strengths and immediate areas of attention. Keep it professional."
+            "Given the high-level metrics of the organization, write a compelling, extremely short 1-2 sentence executive summary. "
+            "Keep it highly clean, professional, and direct."
         )
 
         prompt = f"""

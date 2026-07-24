@@ -242,7 +242,7 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
 
       {employee && (
         <div className="employee-certifications-section" style={{ marginTop: '20px', padding: '20px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}>
-          <h4 style={{ color: 'var(--text-primary)', marginBottom: '15px' }}>Uploaded Certifications</h4>
+          <h4 style={{ color: 'var(--text-main)', marginBottom: '15px' }}>Uploaded Certifications</h4>
           {isCertsLoading ? (
             <div style={{ color: '#aaa', fontSize: '0.85rem' }}>Loading certifications...</div>
           ) : certifications.length > 0 ? (

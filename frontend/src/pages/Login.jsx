@@ -34,7 +34,7 @@ const Login = () => {
   // If already logged in, redirect to dashboard
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [user, navigate]);
 
@@ -45,7 +45,7 @@ const Login = () => {
 
     try {
       await login(username, password);
-      navigate('/'); // Redirect to dashboard on success
+      navigate('/dashboard'); // Redirect to dashboard on success
     } catch (err) {
       setError('Invalid username or password. Please try again.');
     } finally {

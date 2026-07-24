@@ -81,7 +81,7 @@ const CompleteProfile = () => {
       const res = await api.get('auth/me/');
       setUser(res.data);
       
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       toast.error('Failed to update profile.');
     } finally {

@@ -5,7 +5,7 @@ import {
   BookOpen, Target, GraduationCap, Award,
   Activity, TrendingUp, Network, Compass, LayoutGrid,
   BarChart2, PieChart,
-  Bell, Settings, Menu, X
+  Bell, Settings, Menu, X, FileText, CheckSquare
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import './Sidebar.css';
@@ -18,7 +18,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     {
       title: 'Overview',
       items: [
-        { label: 'Dashboard', icon: <LayoutDashboard size={18} />, path: '/' }
+        { label: 'Dashboard', icon: <LayoutDashboard size={18} />, path: '/dashboard' },
+        { label: 'HR Requests', icon: <FileText size={18} />, path: '/hr-requests', employeeOnly: true },
+        { label: 'HR Approvals', icon: <CheckSquare size={18} />, path: '/hr-approvals', restricted: true }
       ]
     },
     {
@@ -40,6 +42,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         { label: 'Succession Planning', icon: <Network size={18} />, path: '/performance/succession', restricted: true },
         { label: 'Training Programs', icon: <GraduationCap size={18} />, path: '/learning/training' },
         { label: 'Certifications', icon: <Award size={18} />, path: '/learning/certifications' },
+        { label: 'Gig Marketplace', icon: <Briefcase size={18} />, path: '/learning/gigs' },
         { label: 'Career Pathing', icon: <Compass size={18} />, path: '/learning/career-pathing' },
       ]
     },
@@ -81,7 +84,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             if (group.restricted && user?.role === 'employee') return null;
 
             // Filter out restricted items within non-restricted groups
-            const visibleItems = group.items.filter(item => !(item.restricted && user?.role === 'employee'));
+            const visibleItems = group.items.filter(item => {
+              if (item.restricted && user?.role === 'employee') return false;
+              if (item.employeeOnly && (user?.role === 'admin' || user?.role === 'hr')) return false;
+              return true;
+            });
             
             if (visibleItems.length === 0) return null;
 

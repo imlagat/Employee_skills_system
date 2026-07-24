@@ -4,7 +4,7 @@
   width: 100vw;
   overflow: hidden;
   background-color: var(--bg-dark, #121212);
-  color: var(--text-primary, #ffffff);
+  color: var(--text-main, var(--text-primary, #ffffff));
 }
 
 .main-wrapper {

@@ -193,6 +193,24 @@
   color: #f87171;
 }
 
+.switch-profile-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  color: var(--text-muted);
+}
+
+.switch-profile-btn:hover {
+  color: var(--accent-orange);
+  background-color: var(--bg-dark);
+}
+
 @media (max-width: 768px) {
   .enterprise-topbar {
     padding: 0 16px;

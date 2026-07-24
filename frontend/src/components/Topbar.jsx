@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, LogOut, Menu, Bell } from 'lucide-react';
+import { Search, LogOut, Menu, Bell, Users } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
 import './Topbar.css';
@@ -173,6 +173,15 @@ const Topbar = ({ toggleSidebar }) => {
               </span>
               <span className="user-role">{user.role}</span>
             </div>
+            {user.role === 'admin' && (
+              <button 
+                className="switch-profile-btn" 
+                onClick={() => navigate('/admin/settings', { state: { activeTab: 'switch-account' } })} 
+                title="Switch Account / Impersonate"
+              >
+                <Users size={18} />
+              </button>
+            )}
             <button className="icon-btn-dark logout-btn" onClick={handleLogout} title="Logout">
               <LogOut size={18} />
             </button>

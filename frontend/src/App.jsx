@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -25,6 +25,9 @@ import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
 import VerifyEmail from './pages/VerifyEmail';
 import CompleteProfile from './pages/CompleteProfile';
+import GigsMarketplace from './pages/GigsMarketplace';
+import HRRequests from './pages/HRRequests';
+import HRApprovals from './pages/HRApprovals';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -68,7 +71,10 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
         
-        <Route path="/" element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>} />
+        <Route path="/hr-requests" element={<ProtectedRoute><Layout><HRRequests /></Layout></ProtectedRoute>} />
+        <Route path="/hr-approvals" element={<ProtectedRoute><Layout><HRApprovals /></Layout></ProtectedRoute>} />
         
         {/* People Module */}
         <Route path="/people/employees" element={<ProtectedRoute><Layout><EmployeeDirectory /></Layout></ProtectedRoute>} />
@@ -84,6 +90,7 @@ function App() {
         <Route path="/learning/competencies" element={<ProtectedRoute><Layout><Competencies /></Layout></ProtectedRoute>} />
         <Route path="/learning/training" element={<ProtectedRoute><Layout><Training /></Layout></ProtectedRoute>} />
         <Route path="/learning/certifications" element={<ProtectedRoute><Layout><Certifications /></Layout></ProtectedRoute>} />
+        <Route path="/learning/gigs" element={<ProtectedRoute><Layout><GigsMarketplace /></Layout></ProtectedRoute>} />
         <Route path="/learning/career-pathing" element={<ProtectedRoute><Layout><CareerPathing /></Layout></ProtectedRoute>} />
         
         {/* Performance Module */}
