@@ -32,4 +32,4 @@ vine==5.1.0
 wcwidth==0.8.2
 google-auth==2.30.0
 requests==2.32.3
-google-auth==2.30.0
+gunicorn==23.0.0
