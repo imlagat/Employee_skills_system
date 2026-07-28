@@ -17,6 +17,9 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv(
 if 'employee-skills-system.onrender.com' not in ALLOWED_HOSTS:
     ALLOWED_HOSTS = list(ALLOWED_HOSTS) + ['employee-skills-system.onrender.com']
 
+FRONTEND_URL = config('FRONTEND_URL', default='https://employee-skills-system.vercel.app')
+
+
 
 AUTH_USER_MODEL = 'accounts.User'
 
