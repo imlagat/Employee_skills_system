@@ -235,3 +235,81 @@ input:checked + .slider:before {
   border: 3px solid var(--bg-dark);
   display: block;
 }
+
+@media (max-width: 768px) {
+  .settings-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .settings-sidebar {
+    width: 100%;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .settings-nav-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+
+  .settings-content-area {
+    width: 100%;
+    padding: 24px 16px;
+    min-height: auto;
+  }
+
+  .settings-section-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+  }
+
+  .settings-section-header h3 {
+    font-size: 1.4rem;
+  }
+
+  .setting-group {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .setting-info p {
+    max-width: 100%;
+  }
+
+  .theme-options {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .theme-card {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .profile-edit-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .profile-details-section {
+    grid-template-columns: 1fr;
+    width: 100%;
+    gap: 16px;
+  }
+
+  .settings-btn-save {
+    width: 100%;
+    max-width: 280px;
+    margin: 20px auto 0 auto;
+    display: block;
+  }
+}
+

@@ -37,6 +37,8 @@ class SignupView(views.APIView):
         last_name = request.data.get('last_name', '')
         username = request.data.get('username')
         role = request.data.get('role', 'employee')
+        if role not in ['employee', 'manager']:
+            role = 'employee'
         
         if not email or not password:
             return Response({'error': 'Email and password required'}, status=status.HTTP_400_BAD_REQUEST)

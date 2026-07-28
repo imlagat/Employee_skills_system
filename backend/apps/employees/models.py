@@ -61,7 +61,7 @@ class Employee(models.Model):
     employment_status = models.CharField(max_length=2, choices=EmploymentStatus.choices, default=EmploymentStatus.FULL_TIME)
     bio = models.TextField(blank=True)
     profile_image = models.ImageField(upload_to='profiles/', null=True, blank=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     blood_group = models.CharField(max_length=5, blank=True)
     allergies = models.TextField(blank=True)
     chronic_illnesses = models.TextField(blank=True)

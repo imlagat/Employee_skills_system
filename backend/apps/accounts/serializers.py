@@ -4,10 +4,11 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
     has_completed_profile = serializers.SerializerMethodField()
+    is_active_employee = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'role', 'profile_image', 'has_completed_profile')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'role', 'profile_image', 'has_completed_profile', 'is_active_employee')
         read_only_fields = ('role',)
 
     def get_profile_image(self, obj):
@@ -28,3 +29,8 @@ class UserSerializer(serializers.ModelSerializer):
             # If they have an employee profile and a position assigned, they are onboarded
             return obj.employee_profile.position_id is not None
         return False
+
+    def get_is_active_employee(self, obj):
+        if hasattr(obj, 'employee_profile'):
+            return obj.employee_profile.is_active
+        return True

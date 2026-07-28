@@ -87,6 +87,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
             user.email = validated_data.pop('email')
         if 'role' in validated_data:
             user.role = validated_data.pop('role')
+        if 'is_active' in validated_data:
+            user.is_active = validated_data.get('is_active')
         user.save()
         
         # Remove username if passed during update
