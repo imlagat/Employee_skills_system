@@ -127,7 +127,7 @@ const Login = () => {
       </header>
 
       {/* Main Split Layout Section */}
-      <div className="auth-hero" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '60px 0' }}>
+      <div className="auth-hero" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '30px 0' }}>
         <div className="landing-container" style={{ width: '100%', position: 'relative', zIndex: 10 }}>
           <div className="hero-grid" style={{ alignItems: 'center' }}>
             
@@ -141,32 +141,32 @@ const Login = () => {
                 Unify employee talents, verify certifications, identify competency gaps, and build robust succession plans. All powered by Google Gemini AI-driven insights.
               </p>
             </div>
-
+ 
             {/* Right Side Form Card */}
             <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
               <div className="login-card" style={{ 
                 background: 'var(--landing-card)', 
                 border: '1px solid var(--landing-border)', 
                 borderRadius: '16px', 
-                padding: '40px', 
+                padding: '30px', 
                 maxWidth: '500px', 
                 width: '100%', 
                 boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
               }}>
                 
-                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(246, 139, 31, 0.1)', color: 'var(--accent-orange, #f68b1f)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                    <Lock size={24} />
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(246, 139, 31, 0.1)', color: 'var(--accent-orange, #f68b1f)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
+                    <Lock size={20} />
                   </div>
-                  <h2 style={{ color: '#fff', fontSize: '1.75rem', fontWeight: 800, margin: '0 0 8px 0' }}>Join SkillMatrix</h2>
-                  <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.95rem' }}>Sign in to access your talent dashboard</p>
+                  <h2 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, margin: '0 0 6px 0' }}>Join SkillMatrix</h2>
+                  <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.9rem' }}>Sign in to access your talent dashboard</p>
                 </div>
-
-                {error && <div className="login-error" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', padding: '12px', fontSize: '0.9rem', marginBottom: '24px', textAlign: 'center' }}>{error}</div>}
-
+ 
+                {error && <div className="login-error" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', padding: '10px', fontSize: '0.85rem', marginBottom: '16px', textAlign: 'center' }}>{error}</div>}
+ 
                 <form className="landing-contact-form" onSubmit={handleSubmit}>
-                  <div className="form-group" style={{ marginBottom: '20px' }}>
-                    <label htmlFor="login-username" style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '8px', fontWeight: '600' }}>Username or Email</label>
+                  <div className="form-group" style={{ marginBottom: '14px' }}>
+                    <label htmlFor="login-username" style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Username or Email</label>
                     <input 
                       type="text" 
                       id="login-username"
@@ -175,12 +175,12 @@ const Login = () => {
                       required
                       placeholder="johndoe"
                       autoComplete="username"
-                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
                     />
                   </div>
-
-                  <div className="form-group" style={{ marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+ 
+                  <div className="form-group" style={{ marginBottom: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                       <label htmlFor="login-password" style={{ fontSize: '0.85rem', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Password</label>
                       <Link to="/reset-password" style={{ fontSize: '0.8rem', color: 'var(--accent-orange, #f68b1f)', fontWeight: '600', textDecoration: 'none' }}>Forgot password?</Link>
                     </div>
@@ -192,37 +192,37 @@ const Login = () => {
                       required
                       placeholder="••••••••"
                       autoComplete="current-password"
-                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
                     />
                   </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+ 
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                     <input 
                       type="checkbox" 
                       id="showPassword" 
                       checked={showPassword} 
                       onChange={(e) => setShowPassword(e.target.checked)} 
-                      style={{ width: '16px', height: '16px', accentColor: 'var(--accent-orange, #f68b1f)', cursor: 'pointer' }}
+                      style={{ width: '15px', height: '15px', accentColor: 'var(--accent-orange, #f68b1f)', cursor: 'pointer' }}
                     />
-                    <label htmlFor="showPassword" style={{ fontSize: '0.85rem', color: 'var(--landing-text-muted)', cursor: 'pointer', fontWeight: '500' }}>Show password</label>
+                    <label htmlFor="showPassword" style={{ fontSize: '0.8rem', color: 'var(--landing-text-muted)', cursor: 'pointer', fontWeight: '500' }}>Show password</label>
                   </div>
-
-                  <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '12px' }}>
+ 
+                  <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '10px' }}>
                     {isLoading ? 'Signing in...' : 'Sign In'}
                   </button>
-
-                  <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', color: 'var(--landing-text-muted)', fontSize: '0.8rem' }}>
+ 
+                  <div style={{ display: 'flex', alignItems: 'center', margin: '12px 0', color: 'var(--landing-text-muted)', fontSize: '0.8rem' }}>
                     <div style={{ flex: 1, height: '1px', background: 'var(--landing-border)' }}></div>
-                    <span style={{ padding: '0 10px' }}>OR</span>
+                    <span style={{ padding: '0 8px' }}>OR</span>
                     <div style={{ flex: 1, height: '1px', background: 'var(--landing-border)' }}></div>
                   </div>
-
+ 
                   <button 
                     type="button" 
                     className="landing-btn landing-btn-outline landing-btn-block"
                     onClick={() => handleGoogleLogin()}
                     disabled={isLoading}
-                    style={{ padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+                    style={{ padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -232,12 +232,12 @@ const Login = () => {
                     </svg>
                     Login with Google
                   </button>
-
-                  <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.9rem', color: 'var(--landing-text-muted)' }}>
+ 
+                  <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.85rem', color: 'var(--landing-text-muted)' }}>
                     Don't have an account? <Link to="/signup" style={{ color: 'var(--accent-orange, #f68b1f)', fontWeight: '700', textDecoration: 'none' }}>Sign up</Link>
                   </div>
                 </form>
-
+ 
               </div>
             </div>
 
