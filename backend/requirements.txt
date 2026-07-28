@@ -34,3 +34,5 @@ google-auth==2.30.0
 requests==2.32.3
 gunicorn==23.0.0
 PyPDF2==3.0.1
+whitenoise==6.9.0
+
