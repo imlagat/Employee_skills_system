@@ -1311,8 +1311,14 @@
   }
 
   /* Heading Font Scaling on Mobile */
+  .hero-text-content {
+    align-items: center;
+    text-align: center;
+  }
+
   .hero-text-content h1 {
-    font-size: 2.1rem !important;
+    font-size: 1.8rem !important;
+    text-align: center;
     line-height: 1.25 !important;
   }
 
@@ -1331,7 +1337,14 @@
     font-size: 1.05rem !important;
   }
 
-  .hero-text-content p,
+  .hero-text-content p {
+    font-size: 0.85rem !important;
+    text-align: center;
+    max-width: 100%;
+    margin-bottom: 20px !important;
+    line-height: 1.55 !important;
+  }
+
   .spotlight-text-side p,
   .section-header p,
   .contact-info-side p {

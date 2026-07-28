@@ -299,3 +299,54 @@
     padding: 40px 30px;
   }
 }
+
+@media (max-width: 768px) {
+  .hero-text-content {
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-text-content h1 {
+    font-size: 1.8rem !important;
+    text-align: center;
+    line-height: 1.25 !important;
+  }
+
+  .hero-text-content p {
+    font-size: 0.85rem !important;
+    text-align: center;
+    max-width: 100%;
+    margin-bottom: 20px !important;
+  }
+
+  .login-card {
+    padding: 24px 20px !important;
+    max-width: 100% !important;
+    border-radius: 12px !important;
+  }
+
+  .login-card h2 {
+    font-size: 1.45rem !important;
+  }
+
+  .login-card p {
+    font-size: 0.85rem !important;
+  }
+
+  .login-card input,
+  .login-card select,
+  .login-card button {
+    padding: 10px 12px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .login-card label {
+    font-size: 0.78rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .form-group {
+    margin-bottom: 14px !important;
+  }
+}
+
