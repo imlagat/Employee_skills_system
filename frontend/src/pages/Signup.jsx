@@ -140,100 +140,114 @@ const Signup = () => {
                 background: 'var(--landing-card)', 
                 border: '1px solid var(--landing-border)', 
                 borderRadius: '16px', 
-                padding: '30px', 
+                padding: 0, 
                 maxWidth: '380px', 
                 width: '100%', 
-                boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
+                boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                overflow: 'hidden'
               }}>
                 
-                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                  <h2 style={{ color: 'var(--landing-text-main)', fontSize: '1.5rem', fontWeight: 800, margin: '0 0 6px 0' }}>Create Account</h2>
-                  <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.85rem' }}>Set up your organizational skill profile</p>
+                <div style={{ background: 'linear-gradient(135deg, var(--accent-orange, #f68b1f) 0%, #ff5a36 100%)', padding: '24px', textAlign: 'center' }}>
+                  <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>Create Account</h2>
+                  <p style={{ color: 'rgba(255,255,255,0.85)', margin: '4px 0 0 0', fontSize: '0.85rem' }}>Set up your organizational skill profile</p>
                 </div>
  
-                <form className="landing-contact-form" onSubmit={handleSubmit}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '12px' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>First Name</label>
+                <div style={{ padding: '24px' }}>
+                  <form className="landing-contact-form" onSubmit={handleSubmit}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '12px' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>First Name</label>
+                        <input 
+                          type="text" 
+                          required
+                          placeholder="John"
+                          value={formData.first_name}
+                          onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                          style={{ width: '100%', padding: '10px 16px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                        />
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Last Name</label>
+                        <input 
+                          type="text" 
+                          required
+                          placeholder="Doe"
+                          value={formData.last_name}
+                          onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                          style={{ width: '100%', padding: '10px 16px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                        />
+                      </div>
+                    </div>
+ 
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '14px', marginBottom: '12px' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Username</label>
+                        <input 
+                          type="text" 
+                          required
+                          placeholder="johndoe12"
+                          value={formData.username}
+                          onChange={(e) => setFormData({...formData, username: e.target.value})}
+                          style={{ width: '100%', padding: '10px 16px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                        />
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Role</label>
+                        <select 
+                          value={formData.role}
+                          onChange={(e) => setFormData({...formData, role: e.target.value})}
+                          style={{ width: '100%', padding: '10px 16px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: '#111827', color: '#fff', cursor: 'pointer' }}
+                        >
+                          <option value="employee">Employee</option>
+                          <option value="manager">Manager</option>
+                        </select>
+                      </div>
+                    </div>
+ 
+                    <div className="form-group" style={{ marginBottom: '12px' }}>
+                      <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Email Address</label>
                       <input 
-                        type="text" 
+                        type="email" 
                         required
-                        placeholder="John"
-                        value={formData.first_name}
-                        onChange={(e) => setFormData({...formData, first_name: e.target.value})}
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                        placeholder="john.doe@company.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        style={{ width: '100%', padding: '10px 16px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
                       />
                     </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Last Name</label>
+                    
+                    <div className="form-group" style={{ marginBottom: '14px' }}>
+                      <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Password</label>
                       <input 
-                        type="text" 
+                        type={showPassword ? "text" : "password"} 
                         required
-                        placeholder="Doe"
-                        value={formData.last_name}
-                        onChange={(e) => setFormData({...formData, last_name: e.target.value})}
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                        placeholder="Create a strong password"
+                        value={formData.password}
+                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        style={{ width: '100%', padding: '10px 16px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
                       />
                     </div>
-                  </div>
  
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '14px', marginBottom: '12px' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Username</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', paddingLeft: '4px' }}>
                       <input 
-                        type="text" 
-                        required
-                        placeholder="johndoe12"
-                        value={formData.username}
-                        onChange={(e) => setFormData({...formData, username: e.target.value})}
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                        type="checkbox" 
+                        id="showPassword" 
+                        checked={showPassword} 
+                        onChange={(e) => setShowPassword(e.target.checked)} 
+                        style={{ width: '15px', height: '15px', accentColor: 'var(--accent-orange, #f68b1f)', cursor: 'pointer' }}
                       />
+                      <label htmlFor="showPassword" style={{ fontSize: '0.8rem', color: 'var(--landing-text-muted)', cursor: 'pointer', fontWeight: '500' }}>Show password</label>
                     </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Role</label>
-                      <select 
-                        value={formData.role}
-                        onChange={(e) => setFormData({...formData, role: e.target.value})}
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: '#111827', color: '#fff', cursor: 'pointer' }}
-                      >
-                        <option value="employee">Employee</option>
-                        <option value="manager">Manager</option>
-                      </select>
+ 
+                    <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '10px 20px', borderRadius: '24px' }}>
+                      {isLoading ? 'Creating account...' : 'Create Account'}
+                    </button>
+ 
+                    <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.85rem', color: 'var(--landing-text-muted)' }}>
+                      Already have an account? <Link to="/login" style={{ color: 'var(--accent-orange, #f68b1f)', fontWeight: '700', textDecoration: 'none' }}>Sign in</Link>
                     </div>
-                  </div>
- 
-                  <div className="form-group" style={{ marginBottom: '12px' }}>
-                    <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Email Address</label>
-                    <input 
-                      type="email" 
-                      required
-                      placeholder="john.doe@company.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
-                    />
-                  </div>
-                  
-                  <div className="form-group" style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Password</label>
-                    <input 
-                      type="password" 
-                      required
-                      placeholder="Create a strong password"
-                      value={formData.password}
-                      onChange={(e) => setFormData({...formData, password: e.target.value})}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
-                    />
-                  </div>
- 
-                  <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '10px' }}>
-                    {isLoading ? 'Creating account...' : 'Create Account'}
-                  </button>
- 
-                  <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.85rem', color: 'var(--landing-text-muted)' }}>
-                    Already have an account? <Link to="/login" style={{ color: 'var(--accent-orange, #f68b1f)', fontWeight: '700', textDecoration: 'none' }}>Sign in</Link>
-                  </div>
-                </form>
+                  </form>
+                </div>
  
               </div>
             </div>

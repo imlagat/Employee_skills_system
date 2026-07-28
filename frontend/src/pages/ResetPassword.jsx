@@ -121,58 +121,61 @@ const ResetPassword = () => {
                 background: 'var(--landing-card)', 
                 border: '1px solid var(--landing-border)', 
                 borderRadius: '16px', 
-                padding: '30px', 
+                padding: 0, 
                 maxWidth: '380px', 
                 width: '100%', 
-                boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
+                boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                overflow: 'hidden'
               }}>
                 
-                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <div style={{ background: 'linear-gradient(135deg, var(--accent-orange, #f68b1f) 0%, #ff5a36 100%)', padding: '24px', textAlign: 'center' }}>
                   {!isSubmitted ? (
                     <>
-                      <h2 style={{ color: 'var(--landing-text-main)', fontSize: '1.5rem', fontWeight: 800, margin: '0 0 6px 0' }}>Reset Password</h2>
-                      <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.85rem' }}>Enter your email to receive reset instructions</p>
+                      <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>Reset Password</h2>
+                      <p style={{ color: 'rgba(255,255,255,0.85)', margin: '4px 0 0 0', fontSize: '0.85rem' }}>Enter your email to receive reset instructions</p>
                     </>
                   ) : (
                     <>
-                      <h2 style={{ color: 'var(--landing-text-main)', fontSize: '1.5rem', fontWeight: 800, margin: '0 0 6px 0' }}>Check Your Email</h2>
-                      <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.85rem' }}>We've sent password reset instructions to <strong>{email}</strong></p>
+                      <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>Check Your Email</h2>
+                      <p style={{ color: 'rgba(255,255,255,0.85)', margin: '4px 0 0 0', fontSize: '0.85rem' }}>We've sent password reset instructions to <strong>{email}</strong></p>
                     </>
                   )}
                 </div>
-
-                {!isSubmitted ? (
-                  <form className="landing-contact-form" onSubmit={handleSubmit}>
-                    <div className="form-group" style={{ marginBottom: '14px' }}>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Email Address</label>
-                      <input 
-                        type="email" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        placeholder="Enter your registered email"
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
-                      />
+ 
+                <div style={{ padding: '24px' }}>
+                  {!isSubmitted ? (
+                    <form className="landing-contact-form" onSubmit={handleSubmit}>
+                      <div className="form-group" style={{ marginBottom: '14px' }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Email Address</label>
+                        <input 
+                          type="email" 
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          placeholder="Enter your registered email"
+                          style={{ width: '100%', padding: '10px 16px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                        />
+                      </div>
+                      
+                      <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '10px 20px', borderRadius: '24px', marginTop: '8px' }}>
+                        {isLoading ? 'Sending...' : 'Send Reset Link'}
+                      </button>
+                      
+                      <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.85rem', color: 'var(--landing-text-muted)' }}>
+                        Remember your password? <Link to="/login" style={{ color: 'var(--accent-orange, #f68b1f)', fontWeight: '700', textDecoration: 'none' }}>Sign in</Link>
+                      </div>
+                    </form>
+                  ) : (
+                    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                      <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(74, 222, 128, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#4ade80' }}>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </div>
+                      <button onClick={() => navigate('/login')} className="landing-btn landing-btn-outline landing-btn-block" style={{ padding: '10px 20px', borderRadius: '24px', width: '100%' }}>
+                        Return to Login
+                      </button>
                     </div>
-                    
-                    <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '10px', marginTop: '8px' }}>
-                      {isLoading ? 'Sending...' : 'Send Reset Link'}
-                    </button>
-                    
-                    <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.85rem', color: 'var(--landing-text-muted)' }}>
-                      Remember your password? <Link to="/login" style={{ color: 'var(--accent-orange, #f68b1f)', fontWeight: '700', textDecoration: 'none' }}>Sign in</Link>
-                    </div>
-                  </form>
-                ) : (
-                  <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                    <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(74, 222, 128, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#4ade80' }}>
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <button onClick={() => navigate('/login')} className="landing-btn landing-btn-outline landing-btn-block" style={{ padding: '10px', width: '100%' }}>
-                      Return to Login
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
 
