@@ -59,82 +59,82 @@ const Landing = () => {
 
   const showcaseMockups = {
     passport: (
-      <div className="showcase-mockup-inner passport-mock">
-        <div className="passport-card-header">
+      <div className="showcase-mockup-inner passport-mock" style={{ color: '#f3f4f6' }}>
+        <div className="passport-card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px' }}>
           <div className="passport-avatar-icon">JD</div>
           <div>
-            <h4>Jane Doe</h4>
-            <p>Senior Frontend Developer</p>
+            <h4 style={{ color: '#ffffff', margin: '0 0 2px 0', fontSize: '1.05rem', fontWeight: '700' }}>Jane Doe</h4>
+            <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0, fontSize: '0.8rem' }}>Senior Frontend Developer</p>
           </div>
           <span className="verified-badge">
             <ShieldCheck size={14} /> Verified
           </span>
         </div>
-        <div className="passport-body-list">
+        <div className="passport-body-list" style={{ marginTop: '12px' }}>
           <div className="body-item">
-            <span>Engineering Department</span>
-            <strong>Software Architecture Group</strong>
+            <span style={{ color: 'rgba(255,255,255,0.6)', display: 'block', fontSize: '0.75rem', marginBottom: '4px' }}>Engineering Department</span>
+            <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>Software Architecture Group</strong>
           </div>
-          <div className="body-item">
-            <span>Active Certificates</span>
-            <strong>AWS Certified Cloud Practitioner</strong>
+          <div className="body-item" style={{ marginTop: '12px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.6)', display: 'block', fontSize: '0.75rem', marginBottom: '4px' }}>Active Certificates</span>
+            <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>AWS Certified Cloud Practitioner</strong>
           </div>
-          <div className="body-item">
-            <span>Primary Core Skills</span>
-            <div className="skills-tags-row">
-              <span className="skill-tag">React / TypeScript</span>
-              <span className="skill-tag">GraphQL</span>
-              <span className="skill-tag">Vite & Rollup</span>
+          <div className="body-item" style={{ marginTop: '12px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.6)', display: 'block', fontSize: '0.75rem', marginBottom: '4px' }}>Primary Core Skills</span>
+            <div className="skills-tags-row" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+              <span className="skill-tag" style={{ color: 'rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>React / TypeScript</span>
+              <span className="skill-tag" style={{ color: 'rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>GraphQL</span>
+              <span className="skill-tag" style={{ color: 'rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>Vite & Rollup</span>
             </div>
           </div>
         </div>
       </div>
     ),
     coach: (
-      <div className="showcase-mockup-inner coach-mock">
-        <div className="chat-header">
+      <div className="showcase-mockup-inner coach-mock" style={{ color: '#f3f4f6' }}>
+        <div className="chat-header" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', fontSize: '0.9rem', color: '#ffffff' }}>
           <Sparkles size={16} color="var(--accent-orange)" />
           <span>Gemini AI Career Coach</span>
         </div>
-        <div className="chat-messages">
-          <div className="chat-msg ai-msg">
-            <p>Based on your current skill index (React: 4/5) and your target role (Lead Frontend Developer), I recommend adding <strong>GraphQL</strong> and <strong>Performance Optimization</strong> to your profile. Would you like to review training programs?</p>
+        <div className="chat-messages" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
+          <div className="chat-msg bot" style={{ padding: '12px 16px', borderRadius: '12px', fontSize: '0.85rem', lineHeight: '1.5', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.9)' }}>
+            <p style={{ margin: 0 }}>Based on your current skill index (React: 4/5) and your target role (Lead Frontend Developer), I recommend adding <strong style={{ color: '#ffffff' }}>GraphQL</strong> and <strong style={{ color: '#ffffff' }}>Performance Optimization</strong> to your profile. Would you like to review training programs?</p>
           </div>
-          <div className="chat-msg user-msg">
-            <p>Yes, show me training programs starting this month.</p>
+          <div className="chat-msg user" style={{ padding: '12px 16px', borderRadius: '12px', fontSize: '0.85rem', lineHeight: '1.5', background: 'var(--accent-orange)', color: '#ffffff', alignSelf: 'flex-end' }}>
+            <p style={{ margin: 0 }}>Yes, show me training programs starting this month.</p>
           </div>
-          <div className="chat-msg ai-msg">
-            <p>Here is an active option: <br/><strong>📘 GraphQL APIs in Production</strong><br/>Starts: Aug 12 • 4 Modules • Certified</p>
+          <div className="chat-msg bot" style={{ padding: '12px 16px', borderRadius: '12px', fontSize: '0.85rem', lineHeight: '1.5', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.9)' }}>
+            <p style={{ margin: 0 }}>Here is an active option: <br/><strong>📘 GraphQL APIs in Production</strong><br/>Starts: Aug 12 • 4 Modules • Certified</p>
           </div>
         </div>
       </div>
     ),
     heatmap: (
-      <div className="showcase-mockup-inner matrix-mock">
-        <h4>Workforce Competency Heatmap</h4>
-        <p className="mock-subtitle">Cross-department skill depth representation</p>
-        <div className="heatmap-grid">
-          <div className="heatmap-row">
-            <span className="row-label">Engineering</span>
-            <div className="cells">
+      <div className="showcase-mockup-inner matrix-mock" style={{ color: '#f3f4f6' }}>
+        <h4 style={{ color: '#ffffff', margin: '0 0 4px 0', fontSize: '1.1rem', fontWeight: '700' }}>Workforce Competency Heatmap</h4>
+        <p className="mock-subtitle" style={{ color: 'rgba(255,255,255,0.5)', margin: '0 0 16px 0', fontSize: '0.8rem' }}>Cross-department skill depth representation</p>
+        <div className="heatmap-grid" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="heatmap-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span className="row-label" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>Engineering</span>
+            <div className="cells" style={{ display: 'flex', gap: '4px' }}>
               <div className="cell cell-high" title="TypeScript: 4.8"></div>
               <div className="cell cell-high" title="React: 4.5"></div>
               <div className="cell cell-medium" title="Go: 3.2"></div>
               <div className="cell cell-low" title="Docker: 2.1"></div>
             </div>
           </div>
-          <div className="heatmap-row">
-            <span className="row-label">Design</span>
-            <div className="cells">
+          <div className="heatmap-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span className="row-label" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>Design</span>
+            <div className="cells" style={{ display: 'flex', gap: '4px' }}>
               <div className="cell cell-high" title="Figma: 4.9"></div>
               <div className="cell cell-medium" title="UI Design: 3.8"></div>
               <div className="cell cell-low" title="Framer: 2.0"></div>
               <div className="cell cell-zero" title="Python: 0"></div>
             </div>
           </div>
-          <div className="heatmap-row">
-            <span className="row-label">Product</span>
-            <div className="cells">
+          <div className="heatmap-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span className="row-label" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>Product</span>
+            <div className="cells" style={{ display: 'flex', gap: '4px' }}>
               <div className="cell cell-high" title="Roadmapping: 4.6"></div>
               <div className="cell cell-high" title="Agile: 4.5"></div>
               <div className="cell cell-medium" title="SQL: 3.0"></div>
@@ -142,7 +142,7 @@ const Landing = () => {
             </div>
           </div>
         </div>
-        <div className="heatmap-legend">
+        <div className="heatmap-legend" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '16px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>
           <span>Depth:</span>
           <div className="legend-box cell-zero"></div> 0
           <div className="legend-box cell-low"></div> 1-2
@@ -152,29 +152,29 @@ const Landing = () => {
       </div>
     ),
     succession: (
-      <div className="showcase-mockup-inner succession-mock">
-        <h4>Succession Match Analysis</h4>
-        <div className="role-card">
-          <div className="role-header">
-            <strong>Director of Engineering</strong>
+      <div className="showcase-mockup-inner succession-mock" style={{ color: '#f3f4f6' }}>
+        <h4 style={{ color: '#ffffff', margin: '0 0 12px 0', fontSize: '1.1rem', fontWeight: '700' }}>Succession Match Analysis</h4>
+        <div className="role-card" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '12px' }}>
+          <div className="role-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '8px', marginBottom: '8px' }}>
+            <strong style={{ color: '#ffffff', fontSize: '0.9rem' }}>Director of Engineering</strong>
             <span className="critical-badge">Critical Role</span>
           </div>
-          <div className="successors-list">
-            <div className="successor-item">
-              <div className="successor-info">
-                <strong>Sarah Jenkins</strong>
-                <span>Lead Architect</span>
+          <div className="successors-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className="successor-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="successor-info" style={{ display: 'flex', flexDirection: 'column' }}>
+                <strong style={{ color: '#ffffff', fontSize: '0.85rem' }}>Sarah Jenkins</strong>
+                <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>Lead Architect</span>
               </div>
               <div className="readiness-pill ready-now">Ready in 3mo</div>
-              <div className="match-score">94% Match</div>
+              <div className="match-score" style={{ color: '#ffffff', fontSize: '0.85rem', fontWeight: '600' }}>94% Match</div>
             </div>
-            <div className="successor-item">
-              <div className="successor-info">
-                <strong>Michael Chen</strong>
-                <span>Senior Manager</span>
+            <div className="successor-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+              <div className="successor-info" style={{ display: 'flex', flexDirection: 'column' }}>
+                <strong style={{ color: '#ffffff', fontSize: '0.85rem' }}>Michael Chen</strong>
+                <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>Senior Manager</span>
               </div>
               <div className="readiness-pill ready-later">Ready in 1yr</div>
-              <div className="match-score">82% Match</div>
+              <div className="match-score" style={{ color: '#ffffff', fontSize: '0.85rem', fontWeight: '600' }}>82% Match</div>
             </div>
           </div>
         </div>
@@ -476,11 +476,11 @@ const Landing = () => {
             </ul>
           </div>
           <div className="spotlight-visual-side">
-            <div className="ai-mesh-card">
+            <div className="ai-mesh-card" style={{ background: 'radial-gradient(circle at center, #2e1065 0%, #1e1b4b 60%, #0f172a 100%)', color: '#ffffff' }}>
               <div className="pulsing-radar"></div>
               <Sparkles size={36} className="spotlight-mesh-icon" />
-              <h4>Active Skill Gap Analytics</h4>
-              <p>Workforce competency matched against market benchmarks in real-time.</p>
+              <h4 style={{ color: '#ffffff', margin: '0 0 10px 0', fontSize: '1.25rem', fontWeight: '700' }}>Active Skill Gap Analytics</h4>
+              <p style={{ color: 'rgba(255, 255, 255, 0.7)', margin: 0, fontSize: '0.85rem', lineHeight: '1.5' }}>Workforce competency matched against market benchmarks in real-time.</p>
             </div>
           </div>
         </div>
