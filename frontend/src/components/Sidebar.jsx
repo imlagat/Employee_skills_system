@@ -14,6 +14,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { user } = useContext(AuthContext);
   const location = useLocation();
 
+  const handleLinkClick = () => {
+    if (window.innerWidth <= 1024) {
+      toggleSidebar();
+    }
+  };
+
+
   const navGroups = [
     {
       title: 'Overview',
@@ -101,6 +108,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                       <NavLink 
                         to={item.path} 
                         className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                        onClick={handleLinkClick}
                       >
                         <span className="nav-icon">{item.icon}</span>
                         <span className="nav-label">{item.label}</span>
