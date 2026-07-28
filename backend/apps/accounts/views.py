@@ -6,8 +6,9 @@ from django.core.mail import send_mail
 from django.conf import settings
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
-from .models import User, OTPVerification
+from .models import User, OTPVerification, UserInvitation
 from .serializers import UserSerializer
+
 
 class MeView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
@@ -190,3 +191,150 @@ class ImpersonateView(views.APIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
+
+
+class InviteUserView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if request.user.role not in ['admin', 'manager', 'hr']:
+            return Response({'error': 'Only administrators, managers, or HR personnel can invite new users.'}, status=status.HTTP_403_FORBIDDEN)
+
+        email = request.data.get('email')
+        role = request.data.get('role', 'employee')
+
+        if not email:
+            return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if email is already registered
+        if User.objects.filter(email=email).exists():
+            return Response({'error': 'A user with this email address already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Delete any existing pending invitations for this email to avoid duplicates
+        UserInvitation.objects.filter(email=email, is_accepted=False).delete()
+
+        # Create new invitation
+        invitation = UserInvitation.objects.create(
+            email=email,
+            role=role,
+            invited_by=request.user
+        )
+
+        # Construct invitation link (using the vercel production URL or local development URL)
+        frontend_base_url = getattr(settings, 'FRONTEND_URL', 'https://employee-skills-system.vercel.app')
+        invite_link = f"{frontend_base_url}/accept-invite/{invitation.token}"
+
+        # Send email
+        subject = "Invitation to join SkillMatrix"
+        message = (
+            f"Hello,\n\n"
+            f"You have been invited to join the SkillMatrix system as a {role.capitalize()}.\n"
+            f"Click the link below to set your password and create your profile:\n\n"
+            f"{invite_link}\n\n"
+            f"This link will expire in 7 days.\n\n"
+            f"Best regards,\n"
+            f"SkillMatrix Team"
+        )
+
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False
+            )
+        except Exception as e:
+            # Print to stdout in case of SMTP failure (useful for local debugging)
+            print(f"\n[INVITATION DEBUG] Invitation Link for {email}: {invite_link}\nError: {e}\n")
+
+        return Response({
+            'message': 'Invitation sent successfully.',
+            'id': invitation.id,
+            'email': invitation.email,
+            'role': invitation.role,
+            'token': str(invitation.token),
+            'expires_at': invitation.expires_at
+        }, status=status.HTTP_201_CREATED)
+
+
+class ValidateInviteView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, token):
+        try:
+            invitation = UserInvitation.objects.get(token=token)
+        except (UserInvitation.DoesNotExist, ValueError):
+            return Response({'error': 'Invalid invitation link.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not invitation.is_valid():
+            return Response({'error': 'This invitation link has expired or has already been used.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            'email': invitation.email,
+            'role': invitation.role
+        })
+
+
+class AcceptInviteView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, token):
+        try:
+            invitation = UserInvitation.objects.get(token=token)
+        except (UserInvitation.DoesNotExist, ValueError):
+            return Response({'error': 'Invalid invitation link.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not invitation.is_valid():
+            return Response({'error': 'This invitation link has expired or has already been used.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        password = request.data.get('password')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        phone = request.data.get('phone', '')
+        location = request.data.get('location', '')
+
+        if not password or not first_name or not last_name:
+            return Response({'error': 'First name, last name, and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create user
+        try:
+            user = User.objects.create_user(
+                username=invitation.email,
+                email=invitation.email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                role=invitation.role,
+                is_email_verified=True
+            )
+        except Exception as e:
+            return Response({'error': f'Failed to create user account: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create Employee profile
+        from apps.employees.models import Employee
+        import uuid
+        Employee.objects.create(
+            user=user,
+            employee_id=f"EMP-{uuid.uuid4().hex[:6].upper()}",
+            phone=phone,
+            location=location,
+            hire_date=timezone.now().date()
+        )
+
+        # Mark invitation as accepted
+        invitation.is_accepted = True
+        invitation.save()
+
+        # Generate access and refresh tokens so they are logged in automatically
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user': {
+                'username': user.username,
+                'email': user.email,
+                'role': user.role
+            }
+        }, status=status.HTTP_201_CREATED)
+
