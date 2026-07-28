@@ -149,9 +149,17 @@
 
 /* Hero Section */
 .landing-hero {
-  padding: 180px 0 100px 0;
+  padding: 200px 0 160px 0;
   position: relative;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
 }
+
+.landing-hero > .landing-container {
+  width: 100%;
+}
+
 
 .hero-grid {
   display: grid;
