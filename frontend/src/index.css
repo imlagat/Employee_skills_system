@@ -322,3 +322,80 @@ input[type="file"]::file-selector-button:hover {
 .spinning {
   animation: spin 1.5s linear infinite;
 }
+
+/* Global Responsive & Table Styles */
+.table-wrapper, 
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.table-wrapper table,
+.table-responsive table,
+table {
+  width: 100%;
+  min-width: 600px;
+}
+
+@media (max-width: 768px) {
+  .container,
+  .directory-container,
+  .directory-page,
+  .detail-page-container {
+    padding: 24px 16px !important;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+
+  .form-actions button {
+    width: 100%;
+    min-width: unset;
+  }
+
+  /* Grid and Flex Layout Fallbacks */
+  .grid, .grid-flex, .dashboard-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Passport Responsive Fixes */
+  .passport-header-card {
+    flex-direction: column !important;
+    text-align: center;
+    align-items: center;
+    padding: 24px !important;
+  }
+
+  .passport-badges {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .passport-overview-stats {
+    width: 100%;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .passport-main-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px;
+  }
+
+  .passport-sidebar,
+  .passport-content {
+    width: 100%;
+  }
+
+  .cert-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+

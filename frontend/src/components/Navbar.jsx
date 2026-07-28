@@ -54,7 +54,11 @@ const Navbar = () => {
               <Link to="/notifications" className={currentPath === '/notifications' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>Notifications</Link>
             </>
           )}
+          {user?.role === 'admin' && (
+            <Link to="/admin/users" className={currentPath === '/admin/users' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>Users</Link>
+          )}
           <Link to="/settings" className={currentPath === '/settings' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>Settings</Link>
+
           
           {/* Move Profile to mobile menu on small screens */}
           <div className="mobile-only-profile">

@@ -2,6 +2,11 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/Layout';
+import Landing from './pages/Landing';
+import AcceptInvite from './pages/AcceptInvite';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import UserManagement from './pages/UserManagement';
 import Home from './pages/Home';
 import EmployeeDirectory from './pages/EmployeeDirectory';
 import EmployeeDetail from './pages/EmployeeDetail';
@@ -30,6 +35,7 @@ import HRRequests from './pages/HRRequests';
 import HRApprovals from './pages/HRApprovals';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
+
 
 function App() {
   useEffect(() => {
@@ -65,15 +71,20 @@ function App() {
         }}
       />
       <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/accept-invite/:token" element={<AcceptInvite />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
         
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute><Layout><UserManagement /></Layout></ProtectedRoute>} />
         <Route path="/hr-requests" element={<ProtectedRoute><Layout><HRRequests /></Layout></ProtectedRoute>} />
+
         <Route path="/hr-approvals" element={<ProtectedRoute><Layout><HRApprovals /></Layout></ProtectedRoute>} />
         
         {/* People Module */}
