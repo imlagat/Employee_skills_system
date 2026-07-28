@@ -1,12 +1,14 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, LogOut, Menu, Bell, Users } from 'lucide-react';
+import { Search, LogOut, Menu, Bell, Users, Sun, Moon } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 import api from '../api/axios';
 import './Topbar.css';
 
 const Topbar = ({ toggleSidebar }) => {
   const { user, logout } = useContext(AuthContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -144,8 +146,33 @@ const Topbar = ({ toggleSidebar }) => {
         </div>
       </div>
 
-      <div className="topbar-right">
-        <Link to="/admin/notifications" className="notification-btn" title="Notifications" style={{ color: 'inherit', textDecoration: 'none', position: 'relative', display: 'flex', alignItems: 'center' }}>
+      <div className="topbar-right" style={{ display: 'flex', alignItems: 'center' }}>
+        <button 
+          onClick={toggleTheme} 
+          className="theme-toggle-btn"
+          aria-label="Toggle theme"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            borderRadius: '50%',
+            width: '36px',
+            height: '36px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: 'var(--text-main)',
+            transition: 'background 0.2s',
+            marginRight: '16px',
+            outline: 'none'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+
+        <Link to="/admin/notifications" className="notification-btn" title="Notifications" style={{ color: 'inherit', textDecoration: 'none', position: 'relative', display: 'flex', alignItems: 'center', marginRight: '16px' }}>
           <Bell size={20} className="bell-icon" />
           {unreadCount > 0 && (
             <span className="notification-dot">

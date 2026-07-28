@@ -4,13 +4,15 @@ import {
   Users, Award, Activity, ShieldCheck, HelpCircle, 
   Mail, Phone, MapPin, Send, Menu, X, ArrowRight, 
   CheckCircle2, Sparkles, Compass, Target, Database,
-  TrendingUp, ArrowUpRight, MessageSquare
+  TrendingUp, ArrowUpRight, MessageSquare, Sun, Moon
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 import './Landing.css';
 
 const Landing = () => {
   const { user } = useContext(AuthContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
@@ -185,9 +187,22 @@ const Landing = () => {
       {/* Navigation Header */}
       <header className="landing-header">
         <div className="landing-container nav-flex">
-          <Link to="/" className="landing-logo">
-            <div className="landing-logo-icon">§</div>
-            <span>SkillMatrix</span>
+          <Link to="/" className="landing-logo" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
+            <svg width="34" height="34" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '10px' }}>
+              <defs>
+                <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#f68b1f" />
+                  <stop offset="100%" stopColor="#ff5a36" />
+                </linearGradient>
+              </defs>
+              <circle cx="8" cy="8" r="4.5" fill="url(#logo-grad)" />
+              <circle cx="24" cy="8" r="3.5" fill="url(#logo-grad)" fillOpacity="0.7" />
+              <circle cx="16" cy="24" r="5.5" fill="url(#logo-grad)" />
+              <line x1="8" y1="8" x2="24" y2="8" stroke="url(#logo-grad)" strokeWidth="2.5" strokeDasharray="2 2" />
+              <line x1="8" y1="8" x2="16" y2="24" stroke="url(#logo-grad)" strokeWidth="2.5" />
+              <line x1="24" y1="8" x2="16" y2="24" stroke="url(#logo-grad)" strokeWidth="2.5" />
+            </svg>
+            <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--landing-text-main)', letterSpacing: '-0.5px' }}>SkillMatrix</span>
           </Link>
 
           <button className="landing-mobile-toggle" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -200,7 +215,29 @@ const Landing = () => {
             <a href="#faq" onClick={() => setIsMobileMenuOpen(false)}>FAQ</a>
             <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</a>
             
-            <div className="landing-nav-ctas">
+            <div className="landing-nav-ctas" style={{ display: 'flex', alignItems: 'center' }}>
+              <button 
+                onClick={toggleTheme} 
+                className="theme-toggle-btn"
+                aria-label="Toggle theme"
+                style={{
+                  background: 'transparent',
+                  border: '1px solid var(--landing-border)',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: 'var(--landing-text-main)',
+                  transition: 'all 0.2s',
+                  marginRight: '12px'
+                }}
+              >
+                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+
               {user ? (
                 <button className="landing-btn landing-btn-primary" onClick={() => navigate('/dashboard')}>
                   Go to Dashboard
