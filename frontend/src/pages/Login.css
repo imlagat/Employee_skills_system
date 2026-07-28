@@ -6,7 +6,7 @@
 }
 
 /* Left Side: Landing Hero */
-.landing-hero {
+.auth-hero {
   flex: 1;
   background: linear-gradient(135deg, #f68b1f 0%, #1e293b 100%);
   display: flex;
@@ -18,7 +18,7 @@
   color: #ffffff;
 }
 
-.landing-hero::before {
+.auth-hero::before {
   content: '';
   position: absolute;
   top: 0;
@@ -274,7 +274,7 @@
     flex-direction: column;
   }
   
-  .landing-hero {
+  .auth-hero {
     padding: 40px 20px;
     text-align: center;
   }

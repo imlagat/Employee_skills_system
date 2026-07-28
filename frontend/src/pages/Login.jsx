@@ -127,7 +127,7 @@ const Login = () => {
       </header>
 
       {/* Main Split Layout Section */}
-      <div className="landing-hero" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '60px 0' }}>
+      <div className="auth-hero" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '60px 0' }}>
         <div className="landing-container" style={{ width: '100%', position: 'relative', zIndex: 10 }}>
           <div className="hero-grid" style={{ alignItems: 'center' }}>
             

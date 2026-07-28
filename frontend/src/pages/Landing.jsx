@@ -339,12 +339,40 @@ const Landing = () => {
       <section className="landing-trusted">
         <div className="landing-container">
           <p>Empowering talent intelligence at forward-thinking companies</p>
-          <div className="trusted-logos-grid">
-            <span className="logo-text-mock">LINEAR</span>
-            <span className="logo-text-mock">STRIPE</span>
-            <span className="logo-text-mock">VERCEL</span>
-            <span className="logo-text-mock">NOTION</span>
-            <span className="logo-text-mock">SUPABASE</span>
+          <div className="trusted-logos-grid" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '40px', alignItems: 'center', opacity: 0.65 }}>
+            <span className="logo-text-mock" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '1.05rem', fontWeight: '700', letterSpacing: '1px' }}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 0a10 10 0 1010 10A10 10 0 0010 0zm1 5.18V9h3.82a5 5 0 01-3.82-3.82zM9 14.82V11H5.18A5 5 0 019 14.82zM14.82 11H11v3.82a5 5 0 013.82-3.82zM5.18 9H9V5.18A5 5 0 015.18 9z"/>
+              </svg>
+              LINEAR
+            </span>
+            <span className="logo-text-mock" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '1.05rem', fontWeight: '700', letterSpacing: '1px' }}>
+              <svg width="16" height="20" viewBox="0 0 256 361" fill="currentColor">
+                <path d="M256 121c0-43-20-72-61-72-50 0-77 34-77 75 0 35 24 53 60 63 32 9 40 18 40 31 0 14-11 20-27 20-23 0-41-10-41-26v-1h-44v2c0 48 24 74 65 74 54 0 91-32 91-82 0-38-23-56-65-67-27-7-35-15-35-26 0-11 10-18 25-18 20 0 34 8 34 23v1h44z"/>
+              </svg>
+              STRIPE
+            </span>
+            <span className="logo-text-mock" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '1.05rem', fontWeight: '700', letterSpacing: '1px' }}>
+              <svg width="18" height="18" viewBox="0 0 116 100" fill="currentColor">
+                <path d="M57.5 0L115 100H0L57.5 0Z" />
+              </svg>
+              VERCEL
+            </span>
+            <span className="logo-text-mock" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '1.05rem', fontWeight: '700', letterSpacing: '1px' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M9 3v18"/>
+                <path d="M15 3v18"/>
+                <path d="M9 9h6"/>
+              </svg>
+              NOTION
+            </span>
+            <span className="logo-text-mock" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '1.05rem', fontWeight: '700', letterSpacing: '1px' }}>
+              <svg width="18" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13.5 2L3 14h10v8l10.5-12H13.5V2z"/>
+              </svg>
+              SUPABASE
+            </span>
           </div>
         </div>
       </section>
