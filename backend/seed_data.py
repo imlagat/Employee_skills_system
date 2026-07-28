@@ -4,7 +4,19 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
+from django.contrib.auth import get_user_model
 from apps.employees.models import Department, Position
+
+# Auto-create superuser on first deploy
+User = get_user_model()
+if not User.objects.filter(is_superuser=True).exists():
+    User.objects.create_superuser(
+        username='admin',
+        email='admin@example.com',
+        password='AdminPassword123!'
+    )
+    print("Superuser created successfully!")
+
 
 departments_data = {
     "Engineering": ["Software Engineer", "Senior Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "DevOps Engineer"],
