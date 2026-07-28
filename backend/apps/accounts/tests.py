@@ -88,8 +88,7 @@ class UserInvitationAPITest(APITestCase):
             'password': 'NewUserPass123!',
             'first_name': 'John',
             'last_name': 'Doe',
-            'phone': '1234567890',
-            'location': 'New York'
+            'phone': '1234567890'
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -103,8 +102,8 @@ class UserInvitationAPITest(APITestCase):
         # Verify employee profile creation
         employee = Employee.objects.get(user=user)
         self.assertEqual(employee.phone, '1234567890')
-        self.assertEqual(employee.location, 'New York')
         
         # Verify invitation status
         invitation.refresh_from_db()
         self.assertTrue(invitation.is_accepted)
+

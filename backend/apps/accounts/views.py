@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils import timezone
+
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from .models import User, OTPVerification, UserInvitation
@@ -318,9 +320,9 @@ class AcceptInviteView(views.APIView):
             user=user,
             employee_id=f"EMP-{uuid.uuid4().hex[:6].upper()}",
             phone=phone,
-            location=location,
             hire_date=timezone.now().date()
         )
+
 
         # Mark invitation as accepted
         invitation.is_accepted = True
