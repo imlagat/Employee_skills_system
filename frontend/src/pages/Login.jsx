@@ -1,10 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { AuthContext } from '../context/AuthContext';
-import { Award, Briefcase, TrendingUp } from 'lucide-react';
+import { ShieldCheck, Lock, Menu, X, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import './Login.css';
+import './Landing.css';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -12,6 +13,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -45,7 +47,7 @@ const Login = () => {
 
     try {
       await login(username, password);
-      navigate('/dashboard'); // Redirect to dashboard on success
+      navigate('/dashboard');
     } catch (err) {
       setError('Invalid username or password. Please try again.');
     } finally {
@@ -54,95 +56,120 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page">
+    <div className="landing-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', paddingTop: '80px' }}>
       
-      {/* Left Side - Landing Hero */}
-      <div className="landing-hero">
-        <div className="hero-content">
-          <div className="hero-logo">
-            Skill<span>Matrix.</span>
-          </div>
-          <h1 className="hero-title">Elevate Your Workforce</h1>
-          <p className="hero-subtitle">
-            The complete Employee Skills and Management System. Track competencies, manage training enrollments, and identify promotion readiness all in one unified platform.
-          </p>
-          
-          <div className="hero-features">
-            <div className="feature-item">
-              <div className="feature-icon"><Award size={20} color="#fff" /></div>
-              <span>Comprehensive Skills Tracking & Gap Analysis</span>
-            </div>
-            <div className="feature-item">
-              <div className="feature-icon"><Briefcase size={20} color="#fff" /></div>
-              <span>Automated Training & Certification Management</span>
-            </div>
-            <div className="feature-item">
-              <div className="feature-icon"><TrendingUp size={20} color="#fff" /></div>
-              <span>AI-Powered Promotion Readiness Insights</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Topbar Navigation */}
+      <header className="landing-header">
+        <div className="landing-container nav-flex">
+          <Link to="/" className="landing-logo">
+            <div className="landing-logo-icon">§</div>
+            <span>SkillMatrix</span>
+          </Link>
 
-      {/* Right Side - Auth Card */}
-      <div className="auth-section">
-        <div className="login-card">
-          <div className="login-header">
-            <h2>Join us</h2>
-            <p>Sign in now and start your improvement</p>
+          <button className="landing-mobile-toggle" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+
+          <nav className={`landing-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+            <a href="/#features" onClick={() => setIsMobileMenuOpen(false)}>Features</a>
+            <a href="/#about" onClick={() => setIsMobileMenuOpen(false)}>About Us</a>
+            <a href="/#faq" onClick={() => setIsMobileMenuOpen(false)}>FAQ</a>
+            <a href="/#contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</a>
+            
+            <div className="landing-nav-ctas">
+              <Link to="/login" className="landing-btn landing-btn-outline" onClick={() => setIsMobileMenuOpen(false)}>
+                Login
+              </Link>
+              <Link to="/signup" className="landing-btn landing-btn-primary" onClick={() => setIsMobileMenuOpen(false)}>
+                Sign Up
+              </Link>
+            </div>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Centered Login Section */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
+        <div className="login-card" style={{ 
+          background: 'var(--landing-card)', 
+          border: '1px solid var(--landing-border)', 
+          borderRadius: '16px', 
+          padding: '40px', 
+          maxWidth: '430px', 
+          width: '100%', 
+          boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+          position: 'relative'
+        }}>
+          
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(246, 139, 31, 0.1)', color: 'var(--accent-orange, #f68b1f)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+              <Lock size={24} />
+            </div>
+            <h2 style={{ color: '#fff', fontSize: '1.75rem', fontWeight: 800, margin: '0 0 8px 0' }}>Join SkillMatrix</h2>
+            <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.95rem' }}>Sign in to access your talent dashboard</p>
           </div>
-          
-          {error && <div className="login-error">{error}</div>}
-          
-          <form className="login-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Your username</label>
+
+          {error && <div className="login-error" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', padding: '12px', fontSize: '0.9rem', marginBottom: '24px', textAlign: 'center' }}>{error}</div>}
+
+          <form className="landing-contact-form" onSubmit={handleSubmit}>
+            <div className="form-group" style={{ marginBottom: '20px' }}>
+              <label htmlFor="login-username" style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '8px', fontWeight: '600' }}>Username or Email</label>
               <input 
                 type="text" 
+                id="login-username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                placeholder="Enter your username"
+                placeholder="johndoe"
                 autoComplete="username"
-              />
-            </div>
-            
-            <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label>Set your password</label>
-                <a href="/reset-password" style={{ fontSize: '0.8rem', color: 'var(--accent-orange, #f68b1f)', fontWeight: '600', textDecoration: 'none' }}>Forgot?</a>
-              </div>
-              <input 
-                type={showPassword ? "text" : "password"} 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Enter your password"
-                autoComplete="current-password"
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
               />
             </div>
 
-            <div className="show-password-container">
+            <div className="form-group" style={{ marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <label htmlFor="login-password" style={{ fontSize: '0.85rem', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Password</label>
+                <Link to="/reset-password" style={{ fontSize: '0.8rem', color: 'var(--accent-orange, #f68b1f)', fontWeight: '600', textDecoration: 'none' }}>Forgot password?</Link>
+              </div>
+              <input 
+                type={showPassword ? "text" : "password"} 
+                id="login-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                autoComplete="current-password"
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
               <input 
                 type="checkbox" 
                 id="showPassword" 
                 checked={showPassword} 
                 onChange={(e) => setShowPassword(e.target.checked)} 
+                style={{ width: '16px', height: '16px', accentColor: 'var(--accent-orange, #f68b1f)', cursor: 'pointer' }}
               />
-              <label htmlFor="showPassword">Show password</label>
+              <label htmlFor="showPassword" style={{ fontSize: '0.85rem', color: 'var(--landing-text-muted)', cursor: 'pointer', fontWeight: '500' }}>Show password</label>
             </div>
-            
-            <button type="submit" className="btn-login" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign in'}
+
+            <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '12px' }}>
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
-            
-            <div className="divider">OR</div>
-            
+
+            <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', color: 'var(--landing-text-muted)', fontSize: '0.8rem' }}>
+              <div style={{ flex: 1, height: '1px', background: 'var(--landing-border)' }}></div>
+              <span style={{ padding: '0 10px' }}>OR</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--landing-border)' }}></div>
+            </div>
+
             <button 
               type="button" 
-              className="btn-google"
+              className="landing-btn landing-btn-outline landing-btn-block"
               onClick={() => handleGoogleLogin()}
               disabled={isLoading}
+              style={{ padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -152,9 +179,9 @@ const Login = () => {
               </svg>
               Login with Google
             </button>
-            
-            <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.9rem', color: '#64748b' }}>
-              Don't have an account? <a href="/signup" style={{ color: '#0f172a', fontWeight: '700', textDecoration: 'none' }}>Sign up</a>
+
+            <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.9rem', color: 'var(--landing-text-muted)' }}>
+              Don't have an account? <Link to="/signup" style={{ color: 'var(--accent-orange, #f68b1f)', fontWeight: '700', textDecoration: 'none' }}>Sign up</Link>
             </div>
           </form>
 
