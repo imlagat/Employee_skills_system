@@ -521,15 +521,15 @@ const Landing = () => {
             <div className="contact-details">
               <div className="contact-detail-item">
                 <Mail size={20} />
-                <span>support@skillmatrix.com</span>
+                <span>superposlish@gmail.com</span>
               </div>
               <div className="contact-detail-item">
                 <Phone size={20} />
-                <span>+1 (555) 019-2834</span>
+                <span>+254725130227</span>
               </div>
               <div className="contact-detail-item">
                 <MapPin size={20} />
-                <span>100 Enterprise Way, Suite 400, San Francisco</span>
+                <span>20104 Nakuru, Kenya.</span>
               </div>
             </div>
           </div>
