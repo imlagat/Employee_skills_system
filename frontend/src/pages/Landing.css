@@ -1309,4 +1309,34 @@
     flex-direction: column;
     text-align: center;
   }
+
+  /* Heading Font Scaling on Mobile */
+  .hero-text-content h1 {
+    font-size: 2.1rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .spotlight-text-side h2,
+  .section-header h2,
+  .contact-info-side h2 {
+    font-size: 1.6rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .step-card h4,
+  .ai-mesh-card h4,
+  .passport-mock h4,
+  .matrix-mock h4,
+  .succession-mock h4 {
+    font-size: 1.05rem !important;
+  }
+
+  .hero-text-content p,
+  .spotlight-text-side p,
+  .section-header p,
+  .contact-info-side p {
+    font-size: 0.95rem !important;
+    line-height: 1.55 !important;
+  }
 }
+

@@ -397,5 +397,16 @@ table {
   .cert-grid {
     grid-template-columns: 1fr !important;
   }
+
+  /* Global Heading Scaling on Mobile */
+  h1 {
+    font-size: 1.8rem !important;
+  }
+  h2 {
+    font-size: 1.45rem !important;
+  }
+  h3 {
+    font-size: 1.2rem !important;
+  }
 }
 
