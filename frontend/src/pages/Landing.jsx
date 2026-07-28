@@ -400,7 +400,7 @@ const Landing = () => {
       </section>
 
       {/* Showcase Section */}
-      <section className="landing-showcase">
+      <section id="features" className="landing-showcase">
         <div className="landing-container">
           <div className="section-header">
             <h2>Interactive Product Showcase</h2>
@@ -520,7 +520,7 @@ const Landing = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="landing-testimonials">
+      <section id="about" className="landing-testimonials">
         <div className="landing-container">
           <div className="section-header">
             <h2>What Leaders Say</h2>
