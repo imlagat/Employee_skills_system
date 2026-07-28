@@ -1393,3 +1393,44 @@
   }
 }
 
+/* Mockup Cards Force Light/White Colors in Both Themes */
+.passport-mock,
+.coach-mock,
+.matrix-mock,
+.succession-mock,
+.ai-mesh-card {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Headings and Titles inside mockups */
+.passport-card-header h4,
+.body-item strong,
+.chat-header,
+.ai-mesh-card h4,
+.succession-mock h4,
+.matrix-mock td strong {
+  color: #ffffff !important;
+}
+
+/* Secondary texts and labels inside mockups */
+.passport-card-header p,
+.body-item span,
+.skill-tag,
+.chat-msg.bot p,
+.chat-msg.bot span,
+.matrix-mock th,
+.matrix-mock td span,
+.succession-mock .sec-title,
+.succession-mock .sec-role,
+.ai-mesh-card p {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Skill Tags background/border */
+.skill-tag {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+
