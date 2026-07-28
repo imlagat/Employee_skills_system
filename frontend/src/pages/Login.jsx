@@ -149,17 +149,14 @@ const Login = () => {
                 border: '1px solid var(--landing-border)', 
                 borderRadius: '16px', 
                 padding: '30px', 
-                maxWidth: '500px', 
+                maxWidth: '380px', 
                 width: '100%', 
                 boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
               }}>
                 
                 <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(246, 139, 31, 0.1)', color: 'var(--accent-orange, #f68b1f)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-                    <Lock size={20} />
-                  </div>
-                  <h2 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, margin: '0 0 6px 0' }}>Join SkillMatrix</h2>
-                  <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.9rem' }}>Sign in to access your talent dashboard</p>
+                  <h2 style={{ color: 'var(--landing-text-main)', fontSize: '1.5rem', fontWeight: 800, margin: '0 0 6px 0' }}>Join SkillMatrix</h2>
+                  <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.85rem' }}>Sign in to access your talent dashboard</p>
                 </div>
  
                 {error && <div className="login-error" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', padding: '10px', fontSize: '0.85rem', marginBottom: '16px', textAlign: 'center' }}>{error}</div>}
@@ -179,13 +176,13 @@ const Login = () => {
                     />
                   </div>
  
-                  <div className="form-group" style={{ marginBottom: '14px' }}>
+                  <div className="form-group" style={{ marginBottom: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                       <label htmlFor="login-password" style={{ fontSize: '0.85rem', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Password</label>
                       <Link to="/reset-password" style={{ fontSize: '0.8rem', color: 'var(--accent-orange, #f68b1f)', fontWeight: '600', textDecoration: 'none' }}>Forgot password?</Link>
                     </div>
                     <input 
-                      type={showPassword ? "text" : "password"} 
+                      type="password" 
                       id="login-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -194,17 +191,6 @@ const Login = () => {
                       autoComplete="current-password"
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
                     />
-                  </div>
- 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                    <input 
-                      type="checkbox" 
-                      id="showPassword" 
-                      checked={showPassword} 
-                      onChange={(e) => setShowPassword(e.target.checked)} 
-                      style={{ width: '15px', height: '15px', accentColor: 'var(--accent-orange, #f68b1f)', cursor: 'pointer' }}
-                    />
-                    <label htmlFor="showPassword" style={{ fontSize: '0.8rem', color: 'var(--landing-text-muted)', cursor: 'pointer', fontWeight: '500' }}>Show password</label>
                   </div>
  
                   <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '10px' }}>

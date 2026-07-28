@@ -141,17 +141,14 @@ const Signup = () => {
                 border: '1px solid var(--landing-border)', 
                 borderRadius: '16px', 
                 padding: '30px', 
-                maxWidth: '500px', 
+                maxWidth: '380px', 
                 width: '100%', 
                 boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
               }}>
                 
                 <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(246, 139, 31, 0.1)', color: 'var(--accent-orange, #f68b1f)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-                    <UserPlus size={20} />
-                  </div>
-                  <h2 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, margin: '0 0 6px 0' }}>Create Account</h2>
-                  <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.9rem' }}>Set up your organizational skill profile</p>
+                  <h2 style={{ color: 'var(--landing-text-main)', fontSize: '1.5rem', fontWeight: 800, margin: '0 0 6px 0' }}>Create Account</h2>
+                  <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.85rem' }}>Set up your organizational skill profile</p>
                 </div>
  
                 <form className="landing-contact-form" onSubmit={handleSubmit}>
@@ -217,27 +214,16 @@ const Signup = () => {
                     />
                   </div>
                   
-                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                  <div className="form-group" style={{ marginBottom: '20px' }}>
                     <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Password</label>
                     <input 
-                      type={showPassword ? "text" : "password"} 
+                      type="password" 
                       required
                       placeholder="Create a strong password"
                       value={formData.password}
                       onChange={(e) => setFormData({...formData, password: e.target.value})}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
                     />
-                  </div>
- 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                    <input 
-                      type="checkbox" 
-                      id="showPassword" 
-                      checked={showPassword} 
-                      onChange={(e) => setShowPassword(e.target.checked)} 
-                      style={{ width: '15px', height: '15px', accentColor: 'var(--accent-orange, #f68b1f)', cursor: 'pointer' }}
-                    />
-                    <label htmlFor="showPassword" style={{ fontSize: '0.8rem', color: 'var(--landing-text-muted)', cursor: 'pointer', fontWeight: '500' }}>Show password</label>
                   </div>
  
                   <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '10px' }}>

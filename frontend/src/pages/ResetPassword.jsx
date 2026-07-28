@@ -122,24 +122,21 @@ const ResetPassword = () => {
                 border: '1px solid var(--landing-border)', 
                 borderRadius: '16px', 
                 padding: '30px', 
-                maxWidth: '500px', 
+                maxWidth: '380px', 
                 width: '100%', 
                 boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
               }}>
                 
                 <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(246, 139, 31, 0.1)', color: 'var(--accent-orange, #f68b1f)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-                    <Key size={20} />
-                  </div>
                   {!isSubmitted ? (
                     <>
-                      <h2 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, margin: '0 0 6px 0' }}>Reset Password</h2>
-                      <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.9rem' }}>Enter your email to receive reset instructions</p>
+                      <h2 style={{ color: 'var(--landing-text-main)', fontSize: '1.5rem', fontWeight: 800, margin: '0 0 6px 0' }}>Reset Password</h2>
+                      <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.85rem' }}>Enter your email to receive reset instructions</p>
                     </>
                   ) : (
                     <>
-                      <h2 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, margin: '0 0 6px 0' }}>Check Your Email</h2>
-                      <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.9rem' }}>We've sent password reset instructions to <strong>{email}</strong></p>
+                      <h2 style={{ color: 'var(--landing-text-main)', fontSize: '1.5rem', fontWeight: 800, margin: '0 0 6px 0' }}>Check Your Email</h2>
+                      <p style={{ color: 'var(--landing-text-muted)', margin: 0, fontSize: '0.85rem' }}>We've sent password reset instructions to <strong>{email}</strong></p>
                     </>
                   )}
                 </div>
