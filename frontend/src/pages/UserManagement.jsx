@@ -5,7 +5,7 @@ import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { 
   Users, Mail, UserPlus, Shield, UserCheck, UserX, 
-  Trash2, Send, Edit, RefreshCw 
+  Trash2, Send, Edit, RefreshCw, Clock, AlertCircle, Calendar
 } from 'lucide-react';
 import './Landing.css';
 
@@ -14,6 +14,7 @@ const UserManagement = () => {
   const navigate = useNavigate();
 
   const [employees, setEmployees] = useState([]);
+  const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('employee');
@@ -32,11 +33,15 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await api.get('employees/');
-      setEmployees(res.data.results || res.data || []);
+      const [empRes, inviteRes] = await Promise.all([
+        api.get('employees/'),
+        api.get('auth/invitations/')
+      ]);
+      setEmployees(empRes.data.results || empRes.data || []);
+      setInvitations(inviteRes.data || []);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to load user list.');
+      toast.error('Failed to load user and invitation lists.');
     } finally {
       setLoading(false);
     }
@@ -55,6 +60,7 @@ const UserManagement = () => {
       toast.success(`Invitation successfully sent to ${inviteEmail}!`);
       setInviteEmail('');
       setInviteRole('employee');
+      fetchUsers();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to send invitation.');
     } finally {
@@ -96,6 +102,25 @@ const UserManagement = () => {
     } catch (err) {
       toast.error('Failed to delete user.');
     }
+  };
+
+  const handleRevokeInvite = async (inviteId) => {
+    if (!window.confirm('Are you sure you want to revoke this invitation?')) return;
+
+    try {
+      await api.delete(`auth/invitations/${inviteId}/`);
+      toast.success('Invitation revoked successfully.');
+      fetchUsers();
+    } catch (err) {
+      toast.error('Failed to revoke invitation.');
+    }
+  };
+
+  const getInviteStatus = (invite) => {
+    if (invite.is_accepted) return { label: 'Accepted', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' };
+    const expired = new Date(invite.expires_at) < new Date();
+    if (expired) return { label: 'Expired', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)' };
+    return { label: 'Pending', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' };
   };
 
   if (loading && employees.length === 0) {
@@ -158,7 +183,7 @@ const UserManagement = () => {
         </div>
 
         {/* Users Table */}
-        <div style={{ background: 'var(--landing-card)', border: '1px solid var(--landing-border)', borderRadius: '16px', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--landing-card)', border: '1px solid var(--landing-border)', borderRadius: '16px', overflow: 'hidden', marginBottom: '40px' }}>
           <div style={{ padding: '24px', borderBottom: '1px solid var(--landing-border)' }}>
             <h3 style={{ margin: 0, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Users size={20} color="var(--accent-orange, #f68b1f)" /> Enrolled Users ({employees.length})
@@ -177,62 +202,151 @@ const UserManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {employees.map(emp => (
-                  <tr key={emp.id} style={{ borderBottom: '1px solid var(--landing-border)', transition: 'background 0.2s ease' }} className="table-row-hover">
-                    <td style={{ padding: '16px 24px' }}>
-                      <div style={{ fontWeight: '600' }}>{emp.user?.first_name} {emp.user?.last_name || emp.user?.username}</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--landing-text-muted)' }}>{emp.employee_id}</div>
-                    </td>
-                    <td style={{ padding: '16px 24px', color: 'var(--landing-text-muted)' }}>{emp.user?.email || 'No email'}</td>
-                    <td style={{ padding: '16px 24px' }}>
-                      <select 
-                        value={emp.user?.role || 'employee'} 
-                        onChange={(e) => handleChangeRole(emp.id, e.target.value)}
-                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--landing-border)', background: '#1f2937', color: '#fff', fontSize: '0.85rem', cursor: 'pointer' }}
-                      >
-                        <option value="employee">Employee</option>
-                        <option value="manager">Manager</option>
-                        <option value="hr">HR</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </td>
-                    <td style={{ padding: '16px 24px' }}>
-                      <button 
-                        onClick={() => handleToggleStatus(emp.id, emp.is_active)}
-                        style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '6px', 
-                          padding: '6px 12px', 
-                          borderRadius: '20px', 
-                          border: 'none', 
-                          fontSize: '0.8rem', 
-                          fontWeight: 'bold',
-                          cursor: 'pointer',
-                          background: emp.is_active ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                          color: emp.is_active ? '#10b981' : '#ef4444' 
-                        }}
-                      >
-                        {emp.is_active ? (
-                          <><UserCheck size={14} /> Active</>
-                        ) : (
-                          <><UserX size={14} /> Suspended</>
-                        )}
-                      </button>
-                    </td>
-                    <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                      <button 
-                        onClick={() => handleDeleteUser(emp.id)}
-                        style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '6px' }}
-                        title="Delete User"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {employees.map(emp => {
+                  const hasCompleted = emp.user?.has_completed_profile;
+                  let statusBg = 'rgba(239, 68, 68, 0.15)';
+                  let statusColor = '#ef4444';
+                  let statusLabel = 'Suspended';
+                  let StatusIcon = UserX;
+
+                  if (emp.is_active) {
+                    statusBg = 'rgba(16, 185, 129, 0.15)';
+                    statusColor = '#10b981';
+                    statusLabel = 'Active';
+                    StatusIcon = UserCheck;
+                  } else if (hasCompleted) {
+                    statusBg = 'rgba(245, 158, 11, 0.15)';
+                    statusColor = '#f59e0b';
+                    statusLabel = 'Pending Approval';
+                    StatusIcon = Clock;
+                  } else {
+                    statusBg = 'rgba(156, 163, 175, 0.15)';
+                    statusColor = '#9ca3af';
+                    statusLabel = 'Incomplete Profile';
+                    StatusIcon = AlertCircle;
+                  }
+
+                  return (
+                    <tr key={emp.id} style={{ borderBottom: '1px solid var(--landing-border)', transition: 'background 0.2s ease' }} className="table-row-hover">
+                      <td style={{ padding: '16px 24px' }}>
+                        <div style={{ fontWeight: '600' }}>{emp.user?.first_name} {emp.user?.last_name || emp.user?.username}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--landing-text-muted)' }}>{emp.employee_id}</div>
+                      </td>
+                      <td style={{ padding: '16px 24px', color: 'var(--landing-text-muted)' }}>{emp.user?.email || 'No email'}</td>
+                      <td style={{ padding: '16px 24px' }}>
+                        <select 
+                          value={emp.user?.role || 'employee'} 
+                          onChange={(e) => handleChangeRole(emp.id, e.target.value)}
+                          style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--landing-border)', background: '#1f2937', color: '#fff', fontSize: '0.85rem', cursor: 'pointer' }}
+                        >
+                          <option value="employee">Employee</option>
+                          <option value="manager">Manager</option>
+                          <option value="hr">HR</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </td>
+                      <td style={{ padding: '16px 24px' }}>
+                        <button 
+                          onClick={() => handleToggleStatus(emp.id, emp.is_active)}
+                          title={statusLabel === 'Pending Approval' ? 'Click to Approve Profile' : 'Click to Toggle Status'}
+                          style={{ 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            gap: '6px', 
+                            padding: '6px 12px', 
+                            borderRadius: '20px', 
+                            border: 'none', 
+                            fontSize: '0.8rem', 
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            background: statusBg,
+                            color: statusColor 
+                          }}
+                        >
+                          <StatusIcon size={14} /> {statusLabel}
+                        </button>
+                      </td>
+                      <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                        <button 
+                          onClick={() => handleDeleteUser(emp.id)}
+                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '6px' }}
+                          title="Delete User"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* Sent Invitations Logs Table */}
+        <div style={{ background: 'var(--landing-card)', border: '1px solid var(--landing-border)', borderRadius: '16px', overflow: 'hidden' }}>
+          <div style={{ padding: '24px', borderBottom: '1px solid var(--landing-border)' }}>
+            <h3 style={{ margin: 0, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Calendar size={20} color="var(--accent-orange, #f68b1f)" /> Sent Invitations ({invitations.length})
+            </h3>
+          </div>
+          
+          <div style={{ overflowX: 'auto' }}>
+            {invitations.length > 0 ? (
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)' }}>
+                    <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Invited Email</th>
+                    <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Invitation Code / Token</th>
+                    <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Target Role</th>
+                    <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Status</th>
+                    <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Invited By</th>
+                    <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invitations.map(invite => {
+                    const statusObj = getInviteStatus(invite);
+                    return (
+                      <tr key={invite.id} style={{ borderBottom: '1px solid var(--landing-border)' }}>
+                        <td style={{ padding: '16px 24px', fontWeight: '600' }}>{invite.email}</td>
+                        <td style={{ padding: '16px 24px', fontFamily: 'monospace', fontSize: '0.8rem', color: 'var(--landing-text-muted)' }}>{invite.token}</td>
+                        <td style={{ padding: '16px 24px', textTransform: 'capitalize' }}>{invite.role}</td>
+                        <td style={{ padding: '16px 24px' }}>
+                          <span style={{ 
+                            display: 'inline-flex', 
+                            padding: '4px 10px', 
+                            borderRadius: '12px', 
+                            fontSize: '0.75rem', 
+                            fontWeight: 'bold', 
+                            background: statusObj.bg, 
+                            color: statusObj.color 
+                          }}>
+                            {statusObj.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px 24px', color: 'var(--landing-text-muted)' }}>{invite.invited_by}</td>
+                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                          {!invite.is_accepted && (
+                            <button 
+                              onClick={() => handleRevokeInvite(invite.id)}
+                              style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '6px' }}
+                              title="Revoke / Delete Invitation"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--landing-text-muted)' }}>
+                No invitations sent yet.
+              </div>
+            )}
           </div>
         </div>
 

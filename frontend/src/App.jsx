@@ -73,6 +73,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/accept-invite/:token" element={<AcceptInvite />} />
+        <Route path="/accept-invite" element={<AcceptInvite />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/login" element={<Login />} />
