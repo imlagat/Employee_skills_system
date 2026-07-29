@@ -100,11 +100,18 @@ def notify_employees_on_new_training(sender, instance, created, **kwargs):
                     related_object_id=instance.id
                 )
 
-            for email in recipient_emails:
-                send_mail(
-                    subject=subject,
-                    message=message,
-                    from_email=settings.DEFAULT_FROM_EMAIL or 'noreply@skillmatrix.com',
-                    recipient_list=[email],
-                    fail_silently=True
-                )
+            import threading
+            def send_training_emails():
+                for email in recipient_emails:
+                    try:
+                        send_mail(
+                            subject=subject,
+                            message=message,
+                            from_email=settings.DEFAULT_FROM_EMAIL or 'noreply@skillmatrix.com',
+                            recipient_list=[email],
+                            fail_silently=True
+                        )
+                    except Exception as e:
+                        print(f"Error sending training notification email to {email}: {e}")
+
+            threading.Thread(target=send_training_emails).start()

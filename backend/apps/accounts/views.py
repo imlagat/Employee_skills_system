@@ -60,17 +60,21 @@ class SignupView(views.APIView):
         # Generate OTP
         otp = OTPVerification.objects.create(user=user)
         
-        # Send Email
-        try:
-            send_mail(
-                'Verify your SkillMatrix Account',
-                f'Welcome to SkillMatrix! Your verification code is: {otp.otp_code}',
-                settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
-                [email],
-                fail_silently=False,
-            )
-        except Exception as e:
-            print(f"\n[Verification Code Debug] Registration OTP for {email}: {otp.otp_code}\n")
+        # Send Email Asynchronously
+        import threading
+        def send_otp_email():
+            try:
+                send_mail(
+                    'Verify your SkillMatrix Account',
+                    f'Welcome to SkillMatrix! Your verification code is: {otp.otp_code}',
+                    settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
+                    [email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"\n[Verification Code Debug] Registration OTP for {email}: {otp.otp_code}\nError: {e}\n")
+        
+        threading.Thread(target=send_otp_email).start()
         
         return Response({'message': 'User registered. Please check email for OTP.', 'email': email}, status=status.HTTP_201_CREATED)
 
@@ -240,17 +244,22 @@ class InviteUserView(views.APIView):
             f"SkillMatrix Team"
         )
 
-        try:
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False
-            )
-        except Exception as e:
-            # Print to stdout in case of SMTP failure (useful for local debugging)
-            print(f"\n[INVITATION DEBUG] Invitation Link for {email}: {invite_link}\nError: {e}\n")
+        # Send email asynchronously in a background thread
+        import threading
+        def send_invite_email():
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False
+                )
+            except Exception as e:
+                # Print to stdout in case of SMTP failure (useful for local debugging)
+                print(f"\n[INVITATION DEBUG] Async Invitation Link for {email}: {invite_link}\nError: {e}\n")
+
+        threading.Thread(target=send_invite_email).start()
 
         return Response({
             'message': 'Invitation sent successfully.',
