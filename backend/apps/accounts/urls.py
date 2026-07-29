@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     MeView, SignupView, VerifyOTPView, ResendOTPView, GoogleLoginView, 
     PasswordResetRequestView, PasswordResetConfirmView, ImpersonateView,
-    InviteUserView, ValidateInviteView, AcceptInviteView,
+    InviteUserView, ResendInvitationView, ValidateInviteView, AcceptInviteView,
     InvitationListView
 )
 
@@ -24,5 +24,6 @@ urlpatterns = [
     path('auth/invite/accept/<str:token>/', AcceptInviteView.as_view(), name='accept-invite'),
     path('auth/invitations/', InvitationListView.as_view(), name='invitations-list'),
     path('auth/invitations/<int:pk>/', InvitationListView.as_view(), name='invitations-detail'),
+    path('auth/invitations/<int:pk>/resend/', ResendInvitationView.as_view(), name='invitations-resend'),
 ]
 

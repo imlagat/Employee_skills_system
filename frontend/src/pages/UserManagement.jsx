@@ -116,6 +116,15 @@ const UserManagement = () => {
     }
   };
 
+  const handleResendInvite = async (inviteId) => {
+    try {
+      await api.post(`auth/invitations/${inviteId}/resend/`);
+      toast.success('Invitation email resent successfully!');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to resend invitation email.');
+    }
+  };
+
   const getInviteStatus = (invite) => {
     if (invite.is_accepted) return { label: 'Accepted', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' };
     const expired = new Date(invite.expires_at) < new Date();
@@ -326,15 +335,24 @@ const UserManagement = () => {
                           </span>
                         </td>
                         <td style={{ padding: '16px 24px', color: 'var(--landing-text-muted)' }}>{invite.invited_by}</td>
-                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                        <td style={{ padding: '16px 24px', textAlign: 'right', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
                           {!invite.is_accepted && (
-                            <button 
-                              onClick={() => handleRevokeInvite(invite.id)}
-                              style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '6px' }}
-                              title="Revoke / Delete Invitation"
-                            >
-                              <Trash2 size={18} />
-                            </button>
+                            <>
+                              <button 
+                                onClick={() => handleResendInvite(invite.id)}
+                                style={{ background: 'none', border: 'none', color: 'var(--accent-orange, #f68b1f)', cursor: 'pointer', padding: '6px' }}
+                                title="Resend Invitation Email"
+                              >
+                                <Send size={18} />
+                              </button>
+                              <button 
+                                onClick={() => handleRevokeInvite(invite.id)}
+                                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '6px' }}
+                                title="Revoke / Delete Invitation"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </>
                           )}
                         </td>
                       </tr>

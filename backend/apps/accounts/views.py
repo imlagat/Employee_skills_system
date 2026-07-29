@@ -449,6 +449,52 @@ class InviteUserView(views.APIView):
         }, status=status.HTTP_201_CREATED)
 
 
+class ResendInvitationView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role not in ['admin', 'manager', 'hr']:
+            return Response({'error': 'Only administrators, managers, or HR personnel can resend invitations.'}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            invitation = UserInvitation.objects.get(pk=pk, is_accepted=False)
+        except UserInvitation.DoesNotExist:
+            return Response({'error': 'Active invitation not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        frontend_base_url = getattr(settings, 'FRONTEND_URL', 'https://employee-skills-system.vercel.app')
+        invite_link = f"{frontend_base_url}/accept-invite/{invitation.token}"
+
+        subject = "Invitation to join SkillMatrix"
+        message = (
+            f"Hello,\n\n"
+            f"You have been invited to join the SkillMatrix system as a {invitation.role.capitalize()}.\n\n"
+            f"Invitation Code: {invitation.token}\n\n"
+            f"Click the link below to set your password and create your profile:\n"
+            f"{invite_link}\n\n"
+            f"Alternatively, you can go to {frontend_base_url}/accept-invite and enter the Invitation Code manually.\n\n"
+            f"This link will expire in 7 days.\n\n"
+            f"Best regards,\n"
+            f"SkillMatrix Team"
+        )
+
+        import threading
+        def send_invite_email():
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [invitation.email],
+                    fail_silently=False
+                )
+            except Exception as e:
+                print(f"\n[RESEND INVITATION DEBUG] Async Invitation Link for {invitation.email}: {invite_link}\nError: {e}\n")
+
+        threading.Thread(target=send_invite_email).start()
+
+        return Response({'message': f'Invitation email resent successfully to {invitation.email}'})
+
+
 class ValidateInviteView(views.APIView):
     permission_classes = [AllowAny]
 
