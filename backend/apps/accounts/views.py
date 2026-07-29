@@ -2,6 +2,9 @@ from rest_framework import generics, status, views
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import exceptions
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
@@ -10,6 +13,53 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from .models import User, OTPVerification, UserInvitation
 from .serializers import UserSerializer
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        
+        # Check if user's email is verified
+        if not self.user.is_email_verified:
+            # Generate a new OTP code
+            otp = OTPVerification.objects.create(user=self.user)
+            
+            # Send verification code email asynchronously
+            import threading
+            def send_login_otp_email():
+                try:
+                    subject = "Verify Your Email - SkillMatrix"
+                    message = (
+                        f"Hello {self.user.first_name or self.user.username},\n\n"
+                        f"Please verify your email address to log in to your SkillMatrix account.\n\n"
+                        f"Your 6-digit verification code is: {otp.otp_code}\n\n"
+                        f"This code will expire in 15 minutes.\n\n"
+                        f"Best regards,\n"
+                        f"SkillMatrix Team"
+                    )
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
+                        [self.user.email],
+                        fail_silently=False
+                    )
+                except Exception as e:
+                    print(f"\n[LOGIN OTP DEBUG] Verification OTP for {self.user.email}: {otp.otp_code}\nError: {e}\n")
+            
+            threading.Thread(target=send_login_otp_email).start()
+            
+            raise exceptions.PermissionDenied({
+                'error': 'Please verify your email address. A verification code has been sent.',
+                'is_email_verified': False,
+                'email': self.user.email
+            })
+            
+        return data
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class MeView(generics.RetrieveUpdateAPIView):

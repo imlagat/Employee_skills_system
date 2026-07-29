@@ -51,7 +51,12 @@ const Login = () => {
       await login(username, password);
       navigate('/dashboard');
     } catch (err) {
-      setError('Invalid username or password. Please try again.');
+      if (err.response?.status === 403 && err.response?.data?.is_email_verified === false) {
+        toast.error('Email not verified. A verification code has been sent.');
+        navigate('/verify-email', { state: { email: err.response.data.email } });
+      } else {
+        setError(err.response?.data?.detail || err.response?.data?.error || 'Invalid username or password. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
