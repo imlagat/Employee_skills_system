@@ -164,12 +164,73 @@ class PasswordResetRequestView(views.APIView):
         if not email:
             return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
             
-        if not User.objects.filter(email=email).exists():
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
             return Response({'error': 'No account found with this email address'}, status=status.HTTP_404_NOT_FOUND)
             
-        # In a real app, generate token and send email here
-        # For now, just return success
-        return Response({'message': 'Password reset instructions have been sent to your email.'})
+        # Generate OTP
+        otp = OTPVerification.objects.create(user=user)
+        
+        # Send email asynchronously in a background thread
+        import threading
+        def send_reset_email():
+            try:
+                subject = "Password Reset Verification Code - SkillMatrix"
+                message = (
+                    f"Hello,\n\n"
+                    f"We received a request to reset the password for your SkillMatrix account.\n\n"
+                    f"Your 6-digit verification code is: {otp.otp_code}\n\n"
+                    f"Please enter this code on the website to reset your password.\n\n"
+                    f"If you did not request this, please ignore this email.\n\n"
+                    f"Best regards,\n"
+                    f"SkillMatrix Team"
+                )
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False
+                )
+            except Exception as e:
+                # Print to stdout in case of SMTP failure (useful for local debugging)
+                print(f"\n[PASSWORD RESET DEBUG] Async Reset OTP for {email}: {otp.otp_code}\nError: {e}\n")
+
+        threading.Thread(target=send_reset_email).start()
+        
+        return Response({'message': 'Password reset verification code has been sent to your email.'})
+
+
+class PasswordResetConfirmView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        otp_code = request.data.get('otp')
+        new_password = request.data.get('new_password')
+
+        if not email or not otp_code or not new_password:
+            return Response({'error': 'Email, verification code, and new password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        otp_obj = OTPVerification.objects.filter(user=user, otp_code=otp_code).order_by('-created_at').first()
+        if not otp_obj or not otp_obj.is_valid():
+            return Response({'error': 'Invalid or expired verification code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Mark OTP as used
+        otp_obj.is_used = True
+        otp_obj.save()
+
+        # Set new password
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'message': 'Your password has been successfully reset. Please log in.'}, status=status.HTTP_200_OK)
 
 
 class ImpersonateView(views.APIView):

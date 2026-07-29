@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Key, Menu, X, Sparkles, Sun, Moon } from 'lucide-react';
+import { Key, Menu, X, Sparkles, Sun, Moon, Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { ThemeContext } from '../context/ThemeContext';
@@ -9,12 +9,21 @@ import './Landing.css';
 
 const ResetPassword = () => {
   const { theme, toggleTheme } = useContext(ThemeContext);
+  
+  // State variables
   const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isResetSuccess, setIsResetSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  // Step 1: Request reset code
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -22,13 +31,57 @@ const ResetPassword = () => {
     try {
       await api.post('auth/reset-password/', { email });
       setIsSubmitted(true);
-      toast.success('Password reset instructions sent!');
+      toast.success('Password reset verification code sent!');
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to send reset instructions');
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Step 2: Submit verification code and new password
+  const handleConfirmReset = async (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match.');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await api.post('auth/reset-password/confirm/', {
+        email,
+        otp,
+        new_password: newPassword
+      });
+      setIsResetSuccess(true);
+      toast.success('Password reset successfully!');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to reset password. Please check your code.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getCardHeader = () => {
+    if (isResetSuccess) {
+      return {
+        title: 'Success!',
+        subtitle: 'Your password has been successfully reset'
+      };
+    }
+    if (isSubmitted) {
+      return {
+        title: 'Verify Reset Code',
+        subtitle: `We sent a 6-digit code to ${email}`
+      };
+    }
+    return {
+      title: 'Reset Password',
+      subtitle: 'Enter your email to receive reset instructions'
+    };
+  };
+
+  const headerText = getCardHeader();
 
   return (
     <div className="landing-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', paddingTop: '80px' }}>
@@ -129,51 +182,111 @@ const ResetPassword = () => {
               }}>
                 
                 <div style={{ background: 'linear-gradient(135deg, var(--accent-orange, #f68b1f) 0%, #ff5a36 100%)', padding: '24px', textAlign: 'center' }}>
-                  {!isSubmitted ? (
-                    <>
-                      <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>Reset Password</h2>
-                      <p style={{ color: 'rgba(255,255,255,0.85)', margin: '4px 0 0 0', fontSize: '0.85rem' }}>Enter your email to receive reset instructions</p>
-                    </>
-                  ) : (
-                    <>
-                      <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>Check Your Email</h2>
-                      <p style={{ color: 'rgba(255,255,255,0.85)', margin: '4px 0 0 0', fontSize: '0.85rem' }}>We've sent password reset instructions to <strong>{email}</strong></p>
-                    </>
-                  )}
+                  <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>{headerText.title}</h2>
+                  <p style={{ color: 'rgba(255,255,255,0.85)', margin: '4px 0 0 0', fontSize: '0.85rem' }}>{headerText.subtitle}</p>
                 </div>
  
                 <div style={{ padding: '24px' }}>
-                  {!isSubmitted ? (
+                  {isResetSuccess ? (
+                    /* Step 3: Success Screen */
+                    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                      <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(74, 222, 128, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#4ade80' }}>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </div>
+                      <button onClick={() => navigate('/login')} className="landing-btn landing-btn-primary landing-btn-block" style={{ padding: '10px 20px', borderRadius: '24px', width: '100%' }}>
+                        Sign In Now
+                      </button>
+                    </div>
+                  ) : isSubmitted ? (
+                    /* Step 2: OTP Verification & New Password Screen */
+                    <form className="landing-contact-form" onSubmit={handleConfirmReset}>
+                      <div className="form-group" style={{ marginBottom: '14px' }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Verification Code (OTP)</label>
+                        <div style={{ position: 'relative' }}>
+                          <input 
+                            type="text" 
+                            maxLength="6"
+                            placeholder="Enter 6-digit code"
+                            required
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                            style={{ width: '100%', padding: '10px 16px 10px 36px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                          />
+                          <Key size={14} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--landing-text-muted)' }} />
+                        </div>
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: '14px' }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>New Password</label>
+                        <div style={{ position: 'relative' }}>
+                          <input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="••••••••"
+                            required
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            style={{ width: '100%', padding: '10px 16px 10px 36px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                          />
+                          <Lock size={14} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--landing-text-muted)' }} />
+                        </div>
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: '14px' }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Confirm New Password</label>
+                        <div style={{ position: 'relative' }}>
+                          <input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="••••••••"
+                            required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            style={{ width: '100%', padding: '10px 16px 10px 36px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                          />
+                          <Lock size={14} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--landing-text-muted)' }} />
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', paddingLeft: '4px' }}>
+                        <input 
+                          type="checkbox" 
+                          id="showPassword" 
+                          checked={showPassword} 
+                          onChange={(e) => setShowPassword(e.target.checked)} 
+                          style={{ width: '15px', height: '15px', accentColor: 'var(--accent-orange, #f68b1f)', cursor: 'pointer' }}
+                        />
+                        <label htmlFor="showPassword" style={{ fontSize: '0.8rem', color: 'var(--landing-text-muted)', cursor: 'pointer', fontWeight: '500' }}>Show password</label>
+                      </div>
+                      
+                      <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '10px 20px', borderRadius: '24px' }}>
+                        {isLoading ? 'Resetting...' : 'Reset Password'}
+                      </button>
+                    </form>
+                  ) : (
+                    /* Step 1: Request Password Reset Screen */
                     <form className="landing-contact-form" onSubmit={handleSubmit}>
                       <div className="form-group" style={{ marginBottom: '14px' }}>
                         <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Email Address</label>
-                        <input 
-                          type="email" 
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          placeholder="Enter your registered email"
-                          style={{ width: '100%', padding: '10px 16px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
-                        />
+                        <div style={{ position: 'relative' }}>
+                          <input 
+                            type="email" 
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            placeholder="Enter your registered email"
+                            style={{ width: '100%', padding: '10px 16px 10px 36px', borderRadius: '24px', border: '1px solid var(--landing-border)', background: 'rgba(255,255,255,0.02)', color: '#fff' }}
+                          />
+                          <Mail size={14} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--landing-text-muted)' }} />
+                        </div>
                       </div>
                       
                       <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '10px 20px', borderRadius: '24px', marginTop: '8px' }}>
-                        {isLoading ? 'Sending...' : 'Send Reset Link'}
+                        {isLoading ? 'Sending...' : 'Send Reset Code'}
                       </button>
                       
                       <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.85rem', color: 'var(--landing-text-muted)' }}>
                         Remember your password? <Link to="/login" style={{ color: 'var(--accent-orange, #f68b1f)', fontWeight: '700', textDecoration: 'none' }}>Sign in</Link>
                       </div>
                     </form>
-                  ) : (
-                    <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                      <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(74, 222, 128, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#4ade80' }}>
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                      </div>
-                      <button onClick={() => navigate('/login')} className="landing-btn landing-btn-outline landing-btn-block" style={{ padding: '10px 20px', borderRadius: '24px', width: '100%' }}>
-                        Return to Login
-                      </button>
-                    </div>
                   )}
                 </div>
               </div>

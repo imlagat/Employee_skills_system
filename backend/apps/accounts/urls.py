@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     MeView, SignupView, VerifyOTPView, GoogleLoginView, 
-    PasswordResetRequestView, ImpersonateView,
+    PasswordResetRequestView, PasswordResetConfirmView, ImpersonateView,
     InviteUserView, ValidateInviteView, AcceptInviteView,
     InvitationListView
 )
@@ -14,6 +14,7 @@ urlpatterns = [
     path('auth/verify-otp/', VerifyOTPView.as_view(), name='verify-otp'),
     path('auth/google/', GoogleLoginView.as_view(), name='google-login'),
     path('auth/reset-password/', PasswordResetRequestView.as_view(), name='reset-password'),
+    path('auth/reset-password/confirm/', PasswordResetConfirmView.as_view(), name='reset-password-confirm'),
     path('auth/impersonate/', ImpersonateView.as_view(), name='impersonate'),
     
     # Invitations
