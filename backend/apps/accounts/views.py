@@ -183,6 +183,52 @@ class VerifyOTPView(views.APIView):
         })
 
 
+class ResendOTPView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({'error': 'No account found with this email address'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Remove old OTPs for this user
+        OTPVerification.objects.filter(user=user).delete()
+
+        # Generate fresh OTP code
+        otp = OTPVerification.objects.create(user=user)
+
+        # Send Email Asynchronously
+        import threading
+        def send_resend_otp_email():
+            try:
+                subject = "Verify Your Email - SkillMatrix"
+                message = (
+                    f"Hello {user.first_name or user.username},\n\n"
+                    f"Your 6-digit email verification code is: {otp.otp_code}\n\n"
+                    f"This code will expire in 15 minutes.\n\n"
+                    f"Best regards,\n"
+                    f"SkillMatrix Team"
+                )
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
+                    [email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"\n[RESEND OTP DEBUG] Verification OTP for {email}: {otp.otp_code}\nError: {e}\n")
+
+        threading.Thread(target=send_resend_otp_email).start()
+
+        return Response({'message': 'A new verification code has been sent to your email.'})
+
+
 class GoogleLoginView(views.APIView):
     permission_classes = [AllowAny]
     

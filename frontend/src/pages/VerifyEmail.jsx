@@ -45,11 +45,10 @@ const VerifyEmail = () => {
 
   const handleResend = async () => {
     try {
-      // Trigger new OTP generation and email delivery via reset password endpoint or signup flow
-      await api.post('auth/reset-password/', { email });
+      await api.post('auth/resend-otp/', { email });
       toast.success('A new verification code has been sent to your email.');
     } catch (err) {
-      toast.error('Failed to send a new verification code. Please try again.');
+      toast.error(err.response?.data?.error || 'Failed to send a new verification code. Please try again.');
     }
   };
 
