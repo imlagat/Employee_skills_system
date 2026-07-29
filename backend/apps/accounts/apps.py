@@ -22,7 +22,7 @@ class AccountsConfig(AppConfig):
                         'password': 'Admin2026!',
                         'first_name': 'System',
                         'last_name': 'Administrator',
-                        'is_email_verified': False,
+                        'is_email_verified': True,
                     },
                     {
                         'username': 'lagat1',
