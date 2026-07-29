@@ -15,50 +15,72 @@ class AccountsConfig(AppConfig):
                 from django.utils import timezone
                 import uuid
 
-                email = 'lagat6439@gmail.com'
-                password = 'Csetech2005*'
-
-                # Lookup user by email or username
-                user = User.objects.filter(email__iexact=email).first()
-                if not user:
-                    user = User.objects.filter(username__iexact='lagat6439').first()
-
-                if not user:
-                    user = User.objects.create_user(
-                        username='lagat6439',
-                        email=email,
-                        password=password,
-                        first_name='Emmanuel',
-                        last_name='Lagat',
-                        role='admin',
-                        is_email_verified=True,
-                        is_active=True,
-                        is_staff=True,
-                        is_superuser=True
-                    )
-                else:
-                    user.email = email
-                    user.set_password(password)
-                    user.role = 'admin'
-                    user.is_active = True
-                    user.is_email_verified = True
-                    user.is_staff = True
-                    user.is_superuser = True
-                    user.save()
-
-                # Seed/Update Employee Profile
-                employee, emp_created = Employee.objects.get_or_create(
-                    user=user,
-                    defaults={
-                        'employee_id': f"EMP-{uuid.uuid4().hex[:6].upper()}",
-                        'is_active': True,
-                        'hire_date': timezone.now().date()
+                admin_accounts = [
+                    {
+                        'username': 'admin',
+                        'email': 'admin@skillmatrix.com',
+                        'password': 'Admin2026!',
+                        'first_name': 'System',
+                        'last_name': 'Administrator',
+                    },
+                    {
+                        'username': 'lagat1',
+                        'email': 'lagat6439@gmail.com',
+                        'password': 'Admin2026!',
+                        'first_name': 'Emmanuel',
+                        'last_name': 'Lagat',
+                    },
+                    {
+                        'username': 'superposlish',
+                        'email': 'superposlish@gmail.com',
+                        'password': 'Admin2026!',
+                        'first_name': 'Super',
+                        'last_name': 'Admin',
                     }
-                )
-                if not employee.is_active:
-                    employee.is_active = True
-                    employee.save()
+                ]
 
-                print(f"[STARTUP SEED SUCCESS] Admin account ready: {email} / password: {password}")
+                for acc in admin_accounts:
+                    user = User.objects.filter(username__iexact=acc['username']).first()
+                    if not user:
+                        user = User.objects.filter(email__iexact=acc['email']).first()
+
+                    if not user:
+                        user = User.objects.create_user(
+                            username=acc['username'],
+                            email=acc['email'],
+                            password=acc['password'],
+                            first_name=acc['first_name'],
+                            last_name=acc['last_name'],
+                            role='admin',
+                            is_email_verified=True,
+                            is_active=True,
+                            is_staff=True,
+                            is_superuser=True
+                        )
+                    else:
+                        user.username = acc['username']
+                        user.email = acc['email']
+                        user.set_password(acc['password'])
+                        user.role = 'admin'
+                        user.is_active = True
+                        user.is_email_verified = True
+                        user.is_staff = True
+                        user.is_superuser = True
+                        user.save()
+
+                    # Seed/Update Employee Profile
+                    employee, _ = Employee.objects.get_or_create(
+                        user=user,
+                        defaults={
+                            'employee_id': f"EMP-{uuid.uuid4().hex[:6].upper()}",
+                            'is_active': True,
+                            'hire_date': timezone.now().date()
+                        }
+                    )
+                    if not employee.is_active:
+                        employee.is_active = True
+                        employee.save()
+
+                print("[STARTUP SEED SUCCESS] Admin accounts successfully initialized with password: Admin2026!")
             except Exception as e:
-                print(f"[STARTUP SEED WARNING] Could not seed user account: {e}")
+                print(f"[STARTUP SEED WARNING] Could not seed admin user accounts: {e}")
