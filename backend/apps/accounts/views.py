@@ -236,9 +236,11 @@ class InviteUserView(views.APIView):
         subject = "Invitation to join SkillMatrix"
         message = (
             f"Hello,\n\n"
-            f"You have been invited to join the SkillMatrix system as a {role.capitalize()}.\n"
-            f"Click the link below to set your password and create your profile:\n\n"
+            f"You have been invited to join the SkillMatrix system as a {role.capitalize()}.\n\n"
+            f"Invitation Code: {invitation.token}\n\n"
+            f"Click the link below to set your password and create your profile:\n"
             f"{invite_link}\n\n"
+            f"Alternatively, you can go to {frontend_base_url}/accept-invite and enter the Invitation Code manually.\n\n"
             f"This link will expire in 7 days.\n\n"
             f"Best regards,\n"
             f"SkillMatrix Team"
@@ -306,15 +308,27 @@ class AcceptInviteView(views.APIView):
         last_name = request.data.get('last_name')
         phone = request.data.get('phone', '')
         location = request.data.get('location', '')
+        username = request.data.get('username')
+        email = request.data.get('email')
 
         if not password or not first_name or not last_name:
             return Response({'error': 'First name, last name, and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Default to invitation values if not custom-specified
+        reg_email = email if email else invitation.email
+        reg_username = username if username else reg_email
+
+        if User.objects.filter(username=reg_username).exists():
+            return Response({'error': 'Username is already taken. Please choose a different one.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(email=reg_email).exists():
+            return Response({'error': 'A user with this email address already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
         # Create user
         try:
             user = User.objects.create_user(
-                username=invitation.email,
-                email=invitation.email,
+                username=reg_username,
+                email=reg_email,
                 password=password,
                 first_name=first_name,
                 last_name=last_name,
@@ -351,3 +365,33 @@ class AcceptInviteView(views.APIView):
             }
         }, status=status.HTTP_201_CREATED)
 
+class InvitationListView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role not in ['admin', 'manager', 'hr']:
+            return Response({'error': 'Unauthorized.'}, status=status.HTTP_403_FORBIDDEN)
+        invitations = UserInvitation.objects.all().order_by('-created_at')
+        data = []
+        for invite in invitations:
+            data.append({
+                'id': invite.id,
+                'email': invite.email,
+                'role': invite.role,
+                'token': str(invite.token),
+                'is_accepted': invite.is_accepted,
+                'created_at': invite.created_at,
+                'expires_at': invite.expires_at,
+                'invited_by': invite.invited_by.username
+            })
+        return Response(data)
+
+    def delete(self, request, pk):
+        if request.user.role not in ['admin', 'manager', 'hr']:
+            return Response({'error': 'Unauthorized.'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            invitation = UserInvitation.objects.get(pk=pk)
+            invitation.delete()
+            return Response({'message': 'Invitation revoked successfully.'}, status=status.HTTP_200_OK)
+        except UserInvitation.DoesNotExist:
+            return Response({'error': 'Invitation not found.'}, status=status.HTTP_404_NOT_FOUND)
