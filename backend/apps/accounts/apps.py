@@ -18,10 +18,11 @@ class AccountsConfig(AppConfig):
                 admin_accounts = [
                     {
                         'username': 'admin',
-                        'email': 'admin@skillmatrix.com',
+                        'email': 'superposlish@gmail.com',
                         'password': 'Admin2026!',
                         'first_name': 'System',
                         'last_name': 'Administrator',
+                        'is_email_verified': False,
                     },
                     {
                         'username': 'lagat1',
@@ -29,20 +30,14 @@ class AccountsConfig(AppConfig):
                         'password': 'Admin2026!',
                         'first_name': 'Emmanuel',
                         'last_name': 'Lagat',
-                    },
-                    {
-                        'username': 'superposlish',
-                        'email': 'superposlish@gmail.com',
-                        'password': 'Admin2026!',
-                        'first_name': 'Super',
-                        'last_name': 'Admin',
+                        'is_email_verified': True,
                     }
                 ]
 
                 for acc in admin_accounts:
-                    user = User.objects.filter(username__iexact=acc['username']).first()
+                    user = User.objects.filter(email__iexact=acc['email']).first()
                     if not user:
-                        user = User.objects.filter(email__iexact=acc['email']).first()
+                        user = User.objects.filter(username__iexact=acc['username']).first()
 
                     if not user:
                         user = User.objects.create_user(
@@ -52,18 +47,17 @@ class AccountsConfig(AppConfig):
                             first_name=acc['first_name'],
                             last_name=acc['last_name'],
                             role='admin',
-                            is_email_verified=True,
+                            is_email_verified=acc.get('is_email_verified', False),
                             is_active=True,
                             is_staff=True,
                             is_superuser=True
                         )
                     else:
-                        user.username = acc['username']
                         user.email = acc['email']
                         user.set_password(acc['password'])
                         user.role = 'admin'
                         user.is_active = True
-                        user.is_email_verified = True
+                        user.is_email_verified = acc.get('is_email_verified', False)
                         user.is_staff = True
                         user.is_superuser = True
                         user.save()

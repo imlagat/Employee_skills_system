@@ -67,18 +67,21 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         # Temporarily disabled permissions for testing the frontend mockup
         return []
 
-    @action(detail=False, methods=['get', 'patch'])
+    @action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated])
     def me(self, request):
-        try:
-            employee = request.user.employee_profile
-        except Employee.DoesNotExist:
+        if not request.user or not request.user.is_authenticated:
+            return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        employee = getattr(request.user, 'employee_profile', None)
+        if not employee:
             from django.utils import timezone
             import uuid
             # Auto-provision an Employee profile for admin/superusers missing one
             employee = Employee.objects.create(
                 user=request.user,
                 employee_id=f"EMP-{uuid.uuid4().hex[:6].upper()}",
-                hire_date=timezone.now().date()
+                hire_date=timezone.now().date(),
+                is_active=True
             )
         
         if request.method == 'GET':
