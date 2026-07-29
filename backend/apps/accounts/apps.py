@@ -6,8 +6,9 @@ class AccountsConfig(AppConfig):
 
     def ready(self):
         import sys
-        # Run seeding only when starting the web server to avoid running during migrations
-        if any(cmd in sys.argv for cmd in ['runserver', 'gunicorn', 'wsgi', 'asgi']) or 'wsgi' in sys.modules:
+        # Avoid running during management commands like migrations or collectstatic
+        is_management_cmd = any(cmd in arg for arg in sys.argv for cmd in ['makemigrations', 'migrate', 'collectstatic', 'test'])
+        if not is_management_cmd:
             try:
                 from .models import User
                 from apps.employees.models import Employee
@@ -15,32 +16,35 @@ class AccountsConfig(AppConfig):
                 import uuid
 
                 email = 'lagat6439@gmail.com'
-                username = 'lagat6439'
                 password = 'Csetech2005*'
 
-                # Seed/Update User
-                user, created = User.objects.get_or_create(
-                    email=email,
-                    defaults={
-                        'username': username,
-                        'first_name': 'Emmanuel',
-                        'last_name': 'Lagat',
-                        'role': 'admin',
-                        'is_email_verified': True,
-                        'is_active': True,
-                        'is_staff': True,
-                        'is_superuser': True,
-                    }
-                )
+                # Lookup user by email or username
+                user = User.objects.filter(email__iexact=email).first()
+                if not user:
+                    user = User.objects.filter(username__iexact='lagat6439').first()
 
-                # Ensure credentials and states are completely correct and active
-                user.username = username
-                user.set_password(password)
-                user.is_active = True
-                user.is_email_verified = True
-                user.is_staff = True
-                user.is_superuser = True
-                user.save()
+                if not user:
+                    user = User.objects.create_user(
+                        username='lagat6439',
+                        email=email,
+                        password=password,
+                        first_name='Emmanuel',
+                        last_name='Lagat',
+                        role='admin',
+                        is_email_verified=True,
+                        is_active=True,
+                        is_staff=True,
+                        is_superuser=True
+                    )
+                else:
+                    user.email = email
+                    user.set_password(password)
+                    user.role = 'admin'
+                    user.is_active = True
+                    user.is_email_verified = True
+                    user.is_staff = True
+                    user.is_superuser = True
+                    user.save()
 
                 # Seed/Update Employee Profile
                 employee, emp_created = Employee.objects.get_or_create(
@@ -55,6 +59,6 @@ class AccountsConfig(AppConfig):
                     employee.is_active = True
                     employee.save()
 
-                print(f"[STARTUP SEED] Successfully seeded/updated user account: {email}")
+                print(f"[STARTUP SEED SUCCESS] Admin account ready: {email} / password: {password}")
             except Exception as e:
                 print(f"[STARTUP SEED WARNING] Could not seed user account: {e}")

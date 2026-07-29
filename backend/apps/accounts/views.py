@@ -22,6 +22,14 @@ class EmailNotVerifiedException(Exception):
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
+        username_or_email = attrs.get('username', '')
+        if username_or_email and '@' in username_or_email:
+            try:
+                user_obj = User.objects.get(email__iexact=username_or_email)
+                attrs['username'] = user_obj.username
+            except (User.DoesNotExist, User.MultipleObjectsReturned):
+                pass
+
         data = super().validate(attrs)
         
         # Check if user's email is verified
