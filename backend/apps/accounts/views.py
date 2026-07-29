@@ -61,6 +61,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().post(request, *args, **kwargs)
+        except exceptions.PermissionDenied as exc:
+            if isinstance(exc.detail, dict):
+                return Response(exc.detail, status=status.HTTP_403_FORBIDDEN)
+            return Response({'error': str(exc.detail)}, status=status.HTTP_403_FORBIDDEN)
+
 
 class MeView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
