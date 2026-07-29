@@ -15,6 +15,11 @@ from .models import User, OTPVerification, UserInvitation
 from .serializers import UserSerializer
 
 
+class EmailNotVerifiedException(Exception):
+    def __init__(self, email):
+        self.email = email
+
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -49,11 +54,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             
             threading.Thread(target=send_login_otp_email).start()
             
-            raise exceptions.PermissionDenied({
-                'error': 'Please verify your email address. A verification code has been sent.',
-                'is_email_verified': False,
-                'email': self.user.email
-            })
+            raise EmailNotVerifiedException(self.user.email)
             
         return data
 
@@ -64,10 +65,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         try:
             return super().post(request, *args, **kwargs)
-        except exceptions.PermissionDenied as exc:
-            if isinstance(exc.detail, dict):
-                return Response(exc.detail, status=status.HTTP_403_FORBIDDEN)
-            return Response({'error': str(exc.detail)}, status=status.HTTP_403_FORBIDDEN)
+        except EmailNotVerifiedException as exc:
+            return Response({
+                'error': 'Please verify your email address. A verification code has been sent.',
+                'is_email_verified': False,
+                'email': exc.email
+            }, status=status.HTTP_403_FORBIDDEN)
 
 
 class MeView(generics.RetrieveUpdateAPIView):
