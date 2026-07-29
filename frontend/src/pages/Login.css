@@ -12,11 +12,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 120px 0 100px 0;
+  padding: 60px 0 40px 0;
   position: relative;
   overflow: hidden;
   color: var(--landing-text-main);
   min-height: calc(100vh - 80px);
+}
+
+.auth-hero .hero-grid {
+  gap: 40px !important;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 .auth-hero::before {
@@ -355,4 +361,33 @@
     margin-bottom: 14px !important;
   }
 }
+
+/* Ensure inputs, select dropdowns, and textareas are highly visible and readable in both light and dark themes */
+.landing-contact-form input,
+.landing-contact-form select,
+.landing-contact-form textarea {
+  color: var(--landing-text-main) !important;
+  background: var(--landing-bg) !important;
+  border: 1px solid var(--landing-border) !important;
+}
+
+.landing-contact-form input:focus,
+.landing-contact-form select:focus,
+.landing-contact-form textarea:focus {
+  border-color: var(--accent-orange, #f68b1f) !important;
+  outline: none !important;
+}
+
+/* Ensure labels inside the forms are using high contrast theme colors */
+.landing-contact-form label {
+  color: var(--landing-text-main) !important;
+  display: block;
+}
+
+/* Make sure text typed inside option elements of select dropdowns is visible */
+.landing-contact-form select option {
+  color: var(--landing-text-main) !important;
+  background: var(--landing-bg) !important;
+}
+
 
