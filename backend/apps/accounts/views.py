@@ -125,6 +125,18 @@ class SignupView(views.APIView):
             role=role,
             is_email_verified=False
         )
+
+        # Provision Employee profile listed as pending admin verification
+        from apps.employees.models import Employee
+        from django.utils import timezone
+        import uuid
+
+        Employee.objects.create(
+            user=user,
+            employee_id=f"EMP-{uuid.uuid4().hex[:6].upper()}",
+            hire_date=timezone.now().date(),
+            is_active=False  # Pending Admin verification/approval
+        )
         
         # Generate OTP
         otp = OTPVerification.objects.create(user=user)
@@ -135,7 +147,7 @@ class SignupView(views.APIView):
             try:
                 send_mail(
                     'Verify your SkillMatrix Account',
-                    f'Welcome to SkillMatrix! Your verification code is: {otp.otp_code}',
+                    f'Welcome to SkillMatrix! Your 6-digit verification code is: {otp.otp_code}',
                     settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
                     [email],
                     fail_silently=False,
