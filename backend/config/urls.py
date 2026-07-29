@@ -3,8 +3,18 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.http import JsonResponse
+
+def api_root_view(request):
+    return JsonResponse({
+        'name': 'SkillMatrix API Service',
+        'status': 'online',
+        'version': '1.0.0',
+        'documentation': 'https://employee-skills-system.vercel.app'
+    })
 
 urlpatterns = [
+    path('', api_root_view, name='api-root'),
     path('admin/', admin.site.urls),
 
     # Auth
