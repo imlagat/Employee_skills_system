@@ -168,8 +168,8 @@ const EmployeeDirectory = () => {
           <h2>Employee Directory</h2>
           <p>Manage your workforce and their details</p>
         </div>
-        <button className="btn-primary flex-center" onClick={handleAddClick}>
-          <Plus size={18} style={{marginRight: '8px'}} /> Add Employee
+        <button className="btn-primary flex-center" onClick={handleAddClick} style={{ height: '36px', padding: '6px 14px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+          <Plus size={16} style={{marginRight: '6px'}} /> Add Employee
         </button>
       </div>
 

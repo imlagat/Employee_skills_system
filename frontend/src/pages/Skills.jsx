@@ -201,8 +201,8 @@ const Skills = ({ employeeId }) => {
         
         <div className="directory-actions">
           {isManagerOrAdmin && activeTab === 'catalog' && (
-            <button className="btn-primary" onClick={() => handleOpenModal()}>
-              <Plus size={18} />
+            <button className="btn-primary" onClick={() => handleOpenModal()} style={{ height: '36px', padding: '6px 14px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+              <Plus size={16} />
               <span>Add Skill</span>
             </button>
           )}

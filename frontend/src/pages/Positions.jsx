@@ -100,8 +100,8 @@ const Positions = () => {
         </div>
         
         <div className="directory-actions">
-          <button className="btn-primary" onClick={() => handleOpenModal()}>
-            <Plus size={18} />
+          <button className="btn-primary" onClick={() => handleOpenModal()} style={{ height: '36px', padding: '6px 14px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+            <Plus size={16} />
             <span>Add Position</span>
           </button>
         </div>

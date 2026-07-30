@@ -117,12 +117,13 @@ const Competencies = () => {
             value={selectedPositionFilter}
             onChange={(e) => setSelectedPositionFilter(e.target.value)}
             style={{ 
-              padding: '8px 16px', 
+              padding: '6px 14px', 
               borderRadius: '8px', 
               border: '1px solid var(--border-light)', 
               background: 'var(--card-bg)', 
               color: 'var(--text-main)', 
               fontSize: '0.85rem',
+              height: '36px',
               cursor: 'pointer' 
             }}
           >
@@ -132,9 +133,9 @@ const Competencies = () => {
             ))}
           </select>
 
-          <button className="btn-primary" onClick={handleAddClick}>
-            <Plus size={18} />
-            <span>Add Competency Requirement</span>
+          <button className="btn-primary" onClick={handleAddClick} style={{ height: '36px', padding: '6px 14px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+            <Plus size={16} />
+            <span>Add Competency</span>
           </button>
         </div>
       </div>
