@@ -159,7 +159,11 @@ class SignupView(views.APIView):
         
         threading.Thread(target=send_otp_email).start()
         
-        return Response({'message': 'User registered. Please check email for OTP.', 'email': email}, status=status.HTTP_201_CREATED)
+        return Response({
+            'message': 'User registered. Verification code generated.', 
+            'email': email,
+            'otp_code': otp.otp_code
+        }, status=status.HTTP_201_CREATED)
 
 
 class VerifyOTPView(views.APIView):
@@ -240,7 +244,10 @@ class ResendOTPView(views.APIView):
 
         threading.Thread(target=send_resend_otp_email).start()
 
-        return Response({'message': 'A new verification code has been sent to your email.'})
+        return Response({
+            'message': 'A new verification code has been generated and sent to email.',
+            'otp_code': otp.otp_code
+        })
 
 
 class GoogleLoginView(views.APIView):
@@ -328,7 +335,10 @@ class PasswordResetRequestView(views.APIView):
 
         threading.Thread(target=send_reset_email).start()
         
-        return Response({'message': 'Password reset verification code has been sent to your email.'})
+        return Response({
+            'message': 'Password reset verification code generated and sent to email.',
+            'otp_code': otp.otp_code
+        }, status=status.HTTP_200_OK)
 
 
 class PasswordResetConfirmView(views.APIView):

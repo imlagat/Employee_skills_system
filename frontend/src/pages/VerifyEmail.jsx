@@ -45,8 +45,13 @@ const VerifyEmail = () => {
 
   const handleResend = async () => {
     try {
-      await api.post('auth/resend-otp/', { email });
-      toast.success('A new verification code has been sent to your email.');
+      const res = await api.post('auth/resend-otp/', { email });
+      if (res.data?.otp_code) {
+        setOtp(res.data.otp_code);
+        toast.success(`Verification Code: ${res.data.otp_code} (Auto-filled)`);
+      } else {
+        toast.success('A new verification code has been sent to your email.');
+      }
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to send a new verification code. Please try again.');
     }

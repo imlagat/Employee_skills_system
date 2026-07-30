@@ -5,7 +5,7 @@ import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { 
   Users, Mail, UserPlus, Shield, ShieldCheck, UserCheck, UserX, 
-  Trash2, Send, Edit, RefreshCw, Clock, AlertCircle, Calendar
+  Trash2, Send, Edit, RefreshCw, Clock, AlertCircle, Calendar, Copy
 } from 'lucide-react';
 import './Landing.css';
 
@@ -126,6 +126,12 @@ const UserManagement = () => {
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to resend invitation email.');
     }
+  };
+
+  const handleCopyInviteLink = (invite) => {
+    const link = `${window.location.origin}/accept-invite/${invite.token}`;
+    navigator.clipboard.writeText(link);
+    toast.success(`Invitation link for ${invite.email} copied to clipboard!`);
   };
 
   const getInviteStatus = (invite) => {
@@ -364,6 +370,13 @@ const UserManagement = () => {
                         <td style={{ padding: '16px 24px', textAlign: 'right', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
                           {!invite.is_accepted && (
                             <>
+                              <button 
+                                onClick={() => handleCopyInviteLink(invite)}
+                                style={{ background: 'none', border: 'none', color: '#60a5fa', cursor: 'pointer', padding: '6px' }}
+                                title="Copy Invitation Link to Clipboard"
+                              >
+                                <Copy size={18} />
+                              </button>
                               <button 
                                 onClick={() => handleResendInvite(invite)}
                                 style={{ background: 'none', border: 'none', color: 'var(--accent-orange, #f68b1f)', cursor: 'pointer', padding: '6px' }}

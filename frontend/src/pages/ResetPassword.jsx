@@ -29,9 +29,14 @@ const ResetPassword = () => {
     setIsLoading(true);
     
     try {
-      await api.post('auth/reset-password/', { email });
+      const res = await api.post('auth/reset-password/', { email });
       setIsSubmitted(true);
-      toast.success('Password reset verification code sent!');
+      if (res.data?.otp_code) {
+        setOtp(res.data.otp_code);
+        toast.success(`Verification Code: ${res.data.otp_code} (Auto-filled & sent to ${email})`);
+      } else {
+        toast.success('Password reset verification code sent!');
+      }
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to send reset instructions');
     } finally {
@@ -200,6 +205,12 @@ const ResetPassword = () => {
                   ) : isSubmitted ? (
                     /* Step 2: OTP Verification & New Password Screen */
                     <form className="landing-contact-form" onSubmit={handleConfirmReset}>
+                      {otp && (
+                        <div style={{ background: 'rgba(246, 139, 31, 0.15)', border: '1px solid rgba(246, 139, 31, 0.3)', color: 'var(--accent-orange, #f68b1f)', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span>Verification Code: <strong style={{ letterSpacing: '2px', fontSize: '0.9rem' }}>{otp}</strong></span>
+                          <span style={{ fontSize: '0.72rem', opacity: 0.85 }}>(Auto-filled)</span>
+                        </div>
+                      )}
                       <div className="form-group" style={{ marginBottom: '14px' }}>
                         <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--landing-text-muted)', marginBottom: '6px', fontWeight: '600' }}>Verification Code (OTP)</label>
                         <div style={{ position: 'relative' }}>
