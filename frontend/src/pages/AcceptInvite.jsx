@@ -5,6 +5,7 @@ import { ThemeContext } from '../context/ThemeContext';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { ShieldCheck, UserPlus, Lock, Smartphone, Key, Mail, User, Sun, Moon, Sparkles } from 'lucide-react';
+import ConsentModal from '../components/ConsentModal';
 import './Login.css';
 import './Landing.css';
 
@@ -20,6 +21,8 @@ const AcceptInvite = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [hasConsented, setHasConsented] = useState(false);
+  const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     username: '',
@@ -331,7 +334,7 @@ const AcceptInvite = () => {
                         </div>
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', paddingLeft: '4px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', paddingLeft: '4px' }}>
                         <input 
                           type="checkbox" 
                           id="showPassword" 
@@ -342,7 +345,29 @@ const AcceptInvite = () => {
                         <label htmlFor="showPassword" style={{ fontSize: '0.8rem', color: 'var(--landing-text-muted)', cursor: 'pointer', fontWeight: '500' }}>Show password</label>
                       </div>
 
-                      <button type="submit" disabled={submitLoading} className="landing-btn landing-btn-primary landing-btn-block" style={{ padding: '10px 20px', borderRadius: '24px' }}>
+                      {/* Consent Agreement Section */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '16px', paddingLeft: '4px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', border: '1px solid var(--landing-border)' }}>
+                        <input 
+                          type="checkbox" 
+                          id="consentAgreement" 
+                          checked={hasConsented} 
+                          onChange={(e) => setHasConsented(e.target.checked)} 
+                          style={{ marginTop: '3px', width: '16px', height: '16px', accentColor: 'var(--accent-orange, #f68b1f)', cursor: 'pointer' }}
+                          required
+                        />
+                        <label htmlFor="consentAgreement" style={{ fontSize: '0.78rem', color: 'var(--landing-text-muted)', lineHeight: '1.4' }}>
+                          I have read and agree to the{' '}
+                          <button 
+                            type="button" 
+                            onClick={() => setIsConsentModalOpen(true)}
+                            style={{ background: 'none', border: 'none', color: 'var(--accent-orange, #f68b1f)', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 'bold' }}
+                          >
+                            Data Processing & Privacy Consent Terms
+                          </button>
+                        </label>
+                      </div>
+
+                      <button type="submit" disabled={submitLoading || !hasConsented} className="landing-btn landing-btn-primary landing-btn-block" style={{ padding: '10px 20px', borderRadius: '24px', opacity: !hasConsented ? 0.6 : 1, cursor: !hasConsented ? 'not-allowed' : 'pointer' }}>
                         {submitLoading ? 'Registering Account...' : 'Create Account & Log In'}
                       </button>
                     </form>
@@ -355,6 +380,12 @@ const AcceptInvite = () => {
           </div>
         </div>
       </div>
+
+      <ConsentModal 
+        isOpen={isConsentModalOpen} 
+        onClose={() => setIsConsentModalOpen(false)} 
+        onAccept={() => setHasConsented(true)} 
+      />
     </div>
   );
 };

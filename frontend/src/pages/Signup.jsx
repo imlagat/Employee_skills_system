@@ -4,6 +4,7 @@ import { Menu, X, UserPlus, Sparkles, Sun, Moon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { ThemeContext } from '../context/ThemeContext';
+import ConsentModal from '../components/ConsentModal';
 import './Login.css';
 import './Landing.css';
 
@@ -18,6 +19,8 @@ const Signup = () => {
     role: 'employee'
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [hasConsented, setHasConsented] = useState(false);
+  const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -228,7 +231,7 @@ const Signup = () => {
                       />
                     </div>
  
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', paddingLeft: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', paddingLeft: '4px' }}>
                       <input 
                         type="checkbox" 
                         id="showPassword" 
@@ -238,11 +241,33 @@ const Signup = () => {
                       />
                       <label htmlFor="showPassword" style={{ fontSize: '0.8rem', color: 'var(--landing-text-muted)', cursor: 'pointer', fontWeight: '500' }}>Show password</label>
                     </div>
+
+                    {/* Consent Agreement Section */}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '16px', paddingLeft: '4px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', border: '1px solid var(--landing-border)' }}>
+                      <input 
+                        type="checkbox" 
+                        id="consentAgreementSignup" 
+                        checked={hasConsented} 
+                        onChange={(e) => setHasConsented(e.target.checked)} 
+                        style={{ marginTop: '3px', width: '16px', height: '16px', accentColor: 'var(--accent-orange, #f68b1f)', cursor: 'pointer' }}
+                        required
+                      />
+                      <label htmlFor="consentAgreementSignup" style={{ fontSize: '0.78rem', color: 'var(--landing-text-muted)', lineHeight: '1.4' }}>
+                        I have read and agree to the{' '}
+                        <button 
+                          type="button" 
+                          onClick={() => setIsConsentModalOpen(true)}
+                          style={{ background: 'none', border: 'none', color: 'var(--accent-orange, #f68b1f)', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 'bold' }}
+                        >
+                          Data Processing & Privacy Consent Terms
+                        </button>
+                      </label>
+                    </div>
  
-                    <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading} style={{ padding: '10px 20px', borderRadius: '24px' }}>
+                    <button type="submit" className="landing-btn landing-btn-primary landing-btn-block" disabled={isLoading || !hasConsented} style={{ padding: '10px 20px', borderRadius: '24px', opacity: !hasConsented ? 0.6 : 1, cursor: !hasConsented ? 'not-allowed' : 'pointer' }}>
                       {isLoading ? 'Creating account...' : 'Create Account'}
                     </button>
- 
+
                     <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.85rem', color: 'var(--landing-text-muted)' }}>
                       Already have an account? <Link to="/login" style={{ color: 'var(--accent-orange, #f68b1f)', fontWeight: '700', textDecoration: 'none' }}>Sign in</Link>
                     </div>
@@ -255,6 +280,12 @@ const Signup = () => {
           </div>
         </div>
       </div>
+
+      <ConsentModal 
+        isOpen={isConsentModalOpen} 
+        onClose={() => setIsConsentModalOpen(false)} 
+        onAccept={() => setHasConsented(true)} 
+      />
     </div>
   );
 };

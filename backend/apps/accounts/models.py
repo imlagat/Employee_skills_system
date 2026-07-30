@@ -26,6 +26,8 @@ class User(AbstractUser):
     )
     email = models.EmailField(unique=True)
     is_email_verified = models.BooleanField(default=False)
+    has_accepted_consent = models.BooleanField(default=False)
+    consent_accepted_at = models.DateTimeField(null=True, blank=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']

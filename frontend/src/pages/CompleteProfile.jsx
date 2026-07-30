@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
+import ConsentModal from '../components/ConsentModal';
 import './Login.css';
 
 const CompleteProfile = () => {
@@ -14,6 +15,8 @@ const CompleteProfile = () => {
     bio: '',
   });
   const [countryCode, setCountryCode] = useState('+254');
+  const [hasConsented, setHasConsented] = useState(false);
+  const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
 
   const countries = [
     { code: '+1', name: 'USA/Canada' },
@@ -183,7 +186,29 @@ const CompleteProfile = () => {
                 />
               </div>
               
-              <button type="submit" className="btn-login" disabled={isLoading} style={{ marginTop: '20px' }}>
+              {/* Consent Agreement Section */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginTop: '16px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-light)', background: 'var(--bg-dark)' }}>
+                <input 
+                  type="checkbox" 
+                  id="consentAgreementComplete" 
+                  checked={hasConsented} 
+                  onChange={(e) => setHasConsented(e.target.checked)} 
+                  style={{ marginTop: '3px', width: '16px', height: '16px', accentColor: 'var(--accent-orange, #f68b1f)', cursor: 'pointer' }}
+                  required
+                />
+                <label htmlFor="consentAgreementComplete" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+                  I confirm that I have read and agree to the{' '}
+                  <button 
+                    type="button" 
+                    onClick={() => setIsConsentModalOpen(true)}
+                    style={{ background: 'none', border: 'none', color: 'var(--accent-orange, #f68b1f)', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
+                  >
+                    Data Processing & Privacy Consent Terms
+                  </button>
+                </label>
+              </div>
+
+              <button type="submit" className="btn-login" disabled={isLoading || !hasConsented} style={{ marginTop: '20px', opacity: !hasConsented ? 0.6 : 1, cursor: !hasConsented ? 'not-allowed' : 'pointer' }}>
                 {isLoading ? 'Saving...' : 'Complete Setup'}
               </button>
             </form>
@@ -191,6 +216,12 @@ const CompleteProfile = () => {
           </div>
         </div>
       </div>
+
+      <ConsentModal 
+        isOpen={isConsentModalOpen} 
+        onClose={() => setIsConsentModalOpen(false)} 
+        onAccept={() => setHasConsented(true)} 
+      />
     </div>
   );
 };

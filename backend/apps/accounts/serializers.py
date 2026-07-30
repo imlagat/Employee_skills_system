@@ -8,8 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'role', 'profile_image', 'has_completed_profile', 'is_active_employee')
-        read_only_fields = ('role',)
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'role', 'profile_image', 'has_completed_profile', 'is_active_employee', 'has_accepted_consent', 'consent_accepted_at')
+        read_only_fields = ('role', 'has_accepted_consent', 'consent_accepted_at')
 
     def get_profile_image(self, obj):
         if hasattr(obj, 'employee_profile') and obj.employee_profile.profile_image:

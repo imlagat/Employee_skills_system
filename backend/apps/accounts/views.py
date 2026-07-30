@@ -123,7 +123,9 @@ class SignupView(views.APIView):
             first_name=first_name,
             last_name=last_name,
             role=role,
-            is_email_verified=False
+            is_email_verified=False,
+            has_accepted_consent=True,
+            consent_accepted_at=timezone.now()
         )
 
         # Provision Employee profile listed as pending admin verification
@@ -567,7 +569,9 @@ class AcceptInviteView(views.APIView):
                 first_name=first_name,
                 last_name=last_name,
                 role=invitation.role,
-                is_email_verified=True
+                is_email_verified=True,
+                has_accepted_consent=True,
+                consent_accepted_at=timezone.now()
             )
         except Exception as e:
             return Response({'error': f'Failed to create user account: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)

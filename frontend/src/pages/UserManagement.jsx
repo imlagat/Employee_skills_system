@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { 
-  Users, Mail, UserPlus, Shield, UserCheck, UserX, 
+  Users, Mail, UserPlus, Shield, ShieldCheck, UserCheck, UserX, 
   Trash2, Send, Edit, RefreshCw, Clock, AlertCircle, Calendar
 } from 'lucide-react';
 import './Landing.css';
@@ -206,6 +206,7 @@ const UserManagement = () => {
                   <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600' }}>User / Employee ID</th>
                   <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Email</th>
                   <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600' }}>System Role</th>
+                  <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Privacy Consent</th>
                   <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600' }}>Status</th>
                   <th style={{ padding: '16px 24px', color: 'var(--landing-text-muted)', fontWeight: '600', textAlign: 'right' }}>Actions</th>
                 </tr>
@@ -259,6 +260,17 @@ const UserManagement = () => {
                             <option value="hr">HR</option>
                             <option value="admin">Admin</option>
                           </select>
+                        )}
+                      </td>
+                      <td style={{ padding: '16px 24px' }}>
+                        {emp.user?.has_accepted_consent ? (
+                          <span style={{ fontSize: '0.75rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.12)', padding: '4px 8px', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <ShieldCheck size={12} /> Consent Verified
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: '#9ca3af', background: 'rgba(156, 163, 175, 0.12)', padding: '4px 8px', borderRadius: '12px' }}>
+                            Legacy Account
+                          </span>
                         )}
                       </td>
                       <td style={{ padding: '16px 24px' }}>
