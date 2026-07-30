@@ -572,15 +572,60 @@ class AcceptInviteView(views.APIView):
         except Exception as e:
             return Response({'error': f'Failed to create user account: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create Employee profile
+        # Create Employee profile pending Admin verification
         from apps.employees.models import Employee
         import uuid
-        Employee.objects.create(
+        employee = Employee.objects.create(
             user=user,
             employee_id=f"EMP-{uuid.uuid4().hex[:6].upper()}",
             phone=phone,
-            hire_date=timezone.now().date()
+            hire_date=timezone.now().date(),
+            is_active=False  # Pending Admin verification/approval
         )
+
+        # Notify all Admin users (in-app & email)
+        from apps.notifications.models import Notification
+        import threading
+
+        admin_users = User.objects.filter(role='admin')
+        for admin_usr in admin_users:
+            admin_emp = getattr(admin_usr, 'employee_profile', None)
+            if not admin_emp:
+                admin_emp = Employee.objects.create(
+                    user=admin_usr,
+                    employee_id=f"EMP-ADM-{uuid.uuid4().hex[:4].upper()}",
+                    hire_date=timezone.now().date(),
+                    is_active=True
+                )
+            Notification.objects.create(
+                employee=admin_emp,
+                notif_type=Notification.NotifType.GENERAL,
+                message=f"New employee {user.first_name} {user.last_name or user.username} ({user.email}) accepted invitation & created account. Pending Admin verification.",
+                related_object_id=employee.id
+            )
+
+        def notify_admins_via_email():
+            for admin_usr in admin_users:
+                if admin_usr.email:
+                    try:
+                        send_mail(
+                            'New Employee Account Created - Verification Required',
+                            f"Hello {admin_usr.first_name or admin_usr.username},\n\n"
+                            f"A new employee account has been created via invitation:\n"
+                            f"Name: {user.first_name} {user.last_name}\n"
+                            f"Email: {user.email}\n"
+                            f"Role: {user.role.capitalize()}\n\n"
+                            f"The account is currently inactive pending your admin verification.\n"
+                            f"Please log in to SkillMatrix to review and approve the user account.\n\n"
+                            f"Best regards,\nSkillMatrix Team",
+                            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
+                            [admin_usr.email],
+                            fail_silently=True
+                        )
+                    except Exception as e:
+                        print(f"Failed to send admin notification email to {admin_usr.email}: {e}")
+
+        threading.Thread(target=notify_admins_via_email).start()
 
 
         # Mark invitation as accepted

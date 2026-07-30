@@ -75,7 +75,18 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         instance = serializer.instance
         if instance.user and instance.user.role == 'admin':
             raise ValidationError({'error': 'Admin details can only be edited in the profile section.'})
+        
+        was_active = instance.is_active
         serializer.save()
+
+        # If Admin verified & activated a new employee account, notify the employee
+        if not was_active and instance.is_active:
+            from apps.notifications.models import Notification
+            Notification.objects.create(
+                employee=instance,
+                notif_type=Notification.NotifType.GENERAL,
+                message="Your account has been verified and approved by the Administrator."
+            )
 
     def perform_destroy(self, instance):
         if instance.user and instance.user.role == 'admin':
