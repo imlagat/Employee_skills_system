@@ -254,39 +254,42 @@ const Settings = () => {
                   <textarea rows="3" value={profileData.bio} onChange={e => setProfileData({...profileData, bio: e.target.value})}></textarea>
                 </div>
 
-                {/* Part 2: Medical Bio Data */}
-                <div style={{ gridColumn: '1 / -1', margin: '20px 0 10px 0', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
-                  <h4 style={{ color: 'var(--text-main)', margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>🩺 Medical Bio Data</h4>
-                </div>
-                <div className="form-group">
-                  <label>Blood Group</label>
-                  <input type="text" placeholder="e.g. B+, O-" value={profileData.blood_group} onChange={e => setProfileData({...profileData, blood_group: e.target.value})} />
-                </div>
-                <div className="form-group">
-                  <label>Allergies</label>
-                  <input type="text" placeholder="e.g. dust, penicillin" value={profileData.allergies} onChange={e => setProfileData({...profileData, allergies: e.target.value})} />
-                </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label>Chronic Illnesses</label>
-                  <input type="text" placeholder="e.g. asthma, none" value={profileData.chronic_illnesses} onChange={e => setProfileData({...profileData, chronic_illnesses: e.target.value})} />
-                </div>
+                {/* Part 2 & 3: Medical Bio Data & Emergency Contacts (Employees only, hidden for Admins) */}
+                {user?.role !== 'admin' && (
+                  <>
+                    <div style={{ gridColumn: '1 / -1', margin: '20px 0 10px 0', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
+                      <h4 style={{ color: 'var(--text-main)', margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>🩺 Medical Bio Data</h4>
+                    </div>
+                    <div className="form-group">
+                      <label>Blood Group</label>
+                      <input type="text" placeholder="e.g. B+, O-" value={profileData.blood_group} onChange={e => setProfileData({...profileData, blood_group: e.target.value})} />
+                    </div>
+                    <div className="form-group">
+                      <label>Allergies</label>
+                      <input type="text" placeholder="e.g. dust, penicillin" value={profileData.allergies} onChange={e => setProfileData({...profileData, allergies: e.target.value})} />
+                    </div>
+                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                      <label>Chronic Illnesses</label>
+                      <input type="text" placeholder="e.g. asthma, none" value={profileData.chronic_illnesses} onChange={e => setProfileData({...profileData, chronic_illnesses: e.target.value})} />
+                    </div>
 
-                {/* Part 3: Emergency Contacts */}
-                <div style={{ gridColumn: '1 / -1', margin: '20px 0 10px 0', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
-                  <h4 style={{ color: 'var(--text-main)', margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>❤️ Emergency Contact Details</h4>
-                </div>
-                <div className="form-group">
-                  <label>Next of Kin Relationship</label>
-                  <input type="text" placeholder="e.g. Spouse, Sibling, Parent" value={profileData.next_of_kin_relationship} onChange={e => setProfileData({...profileData, next_of_kin_relationship: e.target.value})} />
-                </div>
-                <div className="form-group">
-                  <label>Next of Kin Name</label>
-                  <input type="text" placeholder="Next of Kin's Full Name" value={profileData.next_of_kin_name} onChange={e => setProfileData({...profileData, next_of_kin_name: e.target.value})} />
-                </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label>Next of Kin Contact (Phone)</label>
-                  <input type="tel" placeholder="Next of Kin's phone number" value={profileData.next_of_kin_phone} onChange={e => setProfileData({...profileData, next_of_kin_phone: e.target.value})} />
-                </div>
+                    <div style={{ gridColumn: '1 / -1', margin: '20px 0 10px 0', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
+                      <h4 style={{ color: 'var(--text-main)', margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>❤️ Emergency Contact Details</h4>
+                    </div>
+                    <div className="form-group">
+                      <label>Next of Kin Relationship</label>
+                      <input type="text" placeholder="e.g. Spouse, Sibling, Parent" value={profileData.next_of_kin_relationship} onChange={e => setProfileData({...profileData, next_of_kin_relationship: e.target.value})} />
+                    </div>
+                    <div className="form-group">
+                      <label>Next of Kin Name</label>
+                      <input type="text" placeholder="Next of Kin's Full Name" value={profileData.next_of_kin_name} onChange={e => setProfileData({...profileData, next_of_kin_name: e.target.value})} />
+                    </div>
+                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                      <label>Next of Kin Contact (Phone)</label>
+                      <input type="tel" placeholder="Next of Kin's phone number" value={profileData.next_of_kin_phone} onChange={e => setProfileData({...profileData, next_of_kin_phone: e.target.value})} />
+                    </div>
+                  </>
+                )}
 
               </div>
             </div>
