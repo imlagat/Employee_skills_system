@@ -13,6 +13,8 @@ const Competencies = () => {
   const [formData, setFormData] = useState({ position: '', skill: '', required_level: 1, is_critical: false });
   const [editingId, setEditingId] = useState(null);
 
+  const [selectedPositionFilter, setSelectedPositionFilter] = useState('all');
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -24,9 +26,9 @@ const Competencies = () => {
         api.get('/skills/'),
         api.get('/position-competencies/')
       ]);
-      setPositions(posRes.data.results || posRes.data);
-      setSkills(skillRes.data.results || skillRes.data);
-      setCompetencies(compRes.data.results || compRes.data);
+      setPositions(posRes.data.results || posRes.data || []);
+      setSkills(skillRes.data.results || skillRes.data || []);
+      setCompetencies(compRes.data.results || compRes.data || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -75,26 +77,61 @@ const Competencies = () => {
     }
   };
 
-  // Build Radar Chart Data for 360 Benchmark View
-  const radarData = skills.slice(0, 6).map(s => {
-    const comps = competencies.filter(c => c.skill === s.id);
-    const avgReq = comps.length > 0 ? (comps.reduce((acc, curr) => acc + curr.required_level, 0) / comps.length).toFixed(1) : 3;
+  // Build Radar Chart Data for 360 Benchmark View with fallbacks
+  const targetSkills = skills.length > 0 ? skills.slice(0, 6) : [
+    { id: 1, name: 'Python' },
+    { id: 2, name: 'React' },
+    { id: 3, name: 'AWS' },
+    { id: 4, name: 'Communication' },
+    { id: 5, name: 'Leadership' },
+    { id: 6, name: 'Project Management' }
+  ];
+
+  const radarData = targetSkills.map(s => {
+    const comps = competencies.filter(c => c.skill === s.id || c.skill_name === s.name);
+    const avgReq = comps.length > 0 
+      ? (comps.reduce((acc, curr) => acc + (Number(curr.required_level) || 3), 0) / comps.length).toFixed(1) 
+      : 4.0;
+    const reqVal = parseFloat(avgReq);
     return {
       skill: s.name,
-      RequiredLevel: parseFloat(avgReq),
-      SelfAssessment: Math.min(5, parseFloat(avgReq) + (Math.random() > 0.5 ? 0.5 : -0.5)),
-      ManagerAssessment: parseFloat(avgReq)
+      RequiredLevel: reqVal,
+      SelfAssessment: Math.min(5, Math.max(1, parseFloat((reqVal - 0.4).toFixed(1)))),
+      ManagerAssessment: Math.min(5, Math.max(1, parseFloat((reqVal + 0.2).toFixed(1))))
     };
   });
+
+  const filteredCompetencies = selectedPositionFilter === 'all'
+    ? competencies
+    : competencies.filter(c => String(c.position) === String(selectedPositionFilter) || c.position_name === selectedPositionFilter);
 
   return (
     <div className="directory-container">
       <div className="directory-header">
         <div className="directory-title">
           <h2>Competencies & 360° Skill Benchmarks</h2>
-          <span className="employee-count">{competencies.length} required skills</span>
+          <span className="employee-count">{filteredCompetencies.length} required skills</span>
         </div>
-        <div className="directory-actions">
+        <div className="directory-actions" style={{ gap: '12px', display: 'flex', alignItems: 'center' }}>
+          <select 
+            value={selectedPositionFilter}
+            onChange={(e) => setSelectedPositionFilter(e.target.value)}
+            style={{ 
+              padding: '8px 16px', 
+              borderRadius: '8px', 
+              border: '1px solid var(--border-light)', 
+              background: 'var(--card-bg)', 
+              color: 'var(--text-main)', 
+              fontSize: '0.85rem',
+              cursor: 'pointer' 
+            }}
+          >
+            <option value="all">Filter by Position (All)</option>
+            {positions.map(p => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+
           <button className="btn-primary" onClick={handleAddClick}>
             <Plus size={18} />
             <span>Add Competency Requirement</span>
@@ -128,14 +165,32 @@ const Competencies = () => {
 
       <div className="directory-table-container">
         <table className="directory-table">
-          <thead><tr><th>Position</th><th>Skill</th><th>Required Level</th><th>Critical</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Position</th><th>Skill</th><th>Required Level</th><th>Critical Role</th><th>Actions</th></tr></thead>
           <tbody>
-            {competencies.map(comp => (
+            {filteredCompetencies.map(comp => (
               <tr key={comp.id}>
-                <td><strong>{comp.position_name}</strong></td>
-                <td>{comp.skill_name}</td>
-                <td><span className="status-badge" style={{ backgroundColor: 'rgba(0,214,101,0.1)', color: 'var(--dark-forest)' }}>Level {comp.required_level}</span></td>
-                <td>{comp.is_critical ? 'Yes' : 'No'}</td>
+                <td>
+                  <strong style={{ color: 'var(--text-main)' }}>{comp.position_name || 'Position'}</strong>
+                </td>
+                <td>
+                  <span style={{ fontWeight: '500' }}>{comp.skill_name || 'Skill'}</span>
+                </td>
+                <td>
+                  <span className="status-badge" style={{ backgroundColor: 'rgba(246, 139, 31, 0.15)', color: 'var(--accent-orange, #f68b1f)', border: '1px solid rgba(246, 139, 31, 0.3)', fontWeight: 'bold' }}>
+                    Level {comp.required_level} / 5
+                  </span>
+                </td>
+                <td>
+                  {comp.is_critical ? (
+                    <span style={{ fontSize: '0.75rem', background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '3px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                      Critical Requirement
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: 'rgba(156, 163, 175, 0.15)', padding: '3px 8px', borderRadius: '12px' }}>
+                      Standard
+                    </span>
+                  )}
+                </td>
                 <td className="actions-cell">
                   <button className="icon-btn-small" style={{ color: '#f59e0b' }} onClick={() => handleEdit(comp)} title="Edit">
                     <Edit2 size={16} />
@@ -146,8 +201,12 @@ const Competencies = () => {
                 </td>
               </tr>
             ))}
-            {competencies.length === 0 && (
-              <tr><td colSpan="5" style={{textAlign: 'center', padding: '20px'}}>No competencies defined yet. Add one above.</td></tr>
+            {filteredCompetencies.length === 0 && (
+              <tr>
+                <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
+                  No competency benchmark requirements found. Click "Add Competency Requirement" above to create one.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

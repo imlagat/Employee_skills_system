@@ -65,6 +65,43 @@ class AccountsConfig(AppConfig):
                 # Ensure Employee profiles do not exist for admin users
                 Employee.objects.filter(user__role__iexact='admin').delete()
 
-                print("[STARTUP SEED SUCCESS] Admin accounts successfully initialized with password: Admin2026!")
+                # Seed PositionCompetency requirements if empty
+                from apps.skills.models import Skill, PositionCompetency
+                from apps.employees.models import Position
+
+                if PositionCompetency.objects.count() < 5:
+                    default_competencies = [
+                        ('Frontend Developer', 'React', 4, True),
+                        ('Frontend Developer', 'Communication', 3, False),
+                        ('Backend Developer', 'Python', 5, True),
+                        ('Backend Developer', 'Django', 4, True),
+                        ('Backend Developer', 'AWS', 3, False),
+                        ('Software Engineer', 'Python', 4, True),
+                        ('Software Engineer', 'React', 3, False),
+                        ('Software Engineer', 'AWS', 3, False),
+                        ('Engineering Manager', 'Leadership', 5, True),
+                        ('Engineering Manager', 'Project Management', 4, True),
+                        ('Engineering Manager', 'Communication', 5, False),
+                        ('HR Specialist', 'Communication', 5, True),
+                        ('HR Specialist', 'Leadership', 3, False),
+                        ('Cybersecurity', 'Python', 5, True),
+                        ('Cybersecurity', 'AWS', 4, True),
+                        ('Sales Representative', 'Communication', 5, True),
+                        ('Sales Representative', 'Salesforce', 4, True),
+                        ('VP of Sales', 'Leadership', 5, True),
+                        ('VP of Sales', 'Salesforce', 4, False),
+                        ('VP of Sales', 'Communication', 5, True),
+                    ]
+                    for pos_name, skill_name, req_level, is_crit in default_competencies:
+                        pos = Position.objects.filter(name__iexact=pos_name).first()
+                        skl = Skill.objects.filter(name__iexact=skill_name).first()
+                        if pos and skl:
+                            PositionCompetency.objects.get_or_create(
+                                position=pos,
+                                skill=skl,
+                                defaults={'required_level': req_level, 'is_critical': is_crit}
+                            )
+
+                print("[STARTUP SEED SUCCESS] Admin accounts & position competencies successfully initialized!")
             except Exception as e:
                 print(f"[STARTUP SEED WARNING] Could not seed admin user accounts: {e}")
