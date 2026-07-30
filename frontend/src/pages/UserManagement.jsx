@@ -5,8 +5,9 @@ import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { 
   Users, Mail, UserPlus, Shield, ShieldCheck, UserCheck, UserX, 
-  Trash2, Send, Edit, RefreshCw, Clock, AlertCircle, Calendar, Copy
+  Trash2, Send, Edit, RefreshCw, Clock, AlertCircle, Calendar, Copy, Share2
 } from 'lucide-react';
+import ShareInviteModal from '../components/ShareInviteModal';
 import './Landing.css';
 
 const UserManagement = () => {
@@ -19,6 +20,8 @@ const UserManagement = () => {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('employee');
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [selectedShareInvite, setSelectedShareInvite] = useState(null);
 
   // Restrict access to admin only
   useEffect(() => {
@@ -371,6 +374,16 @@ const UserManagement = () => {
                           {!invite.is_accepted && (
                             <>
                               <button 
+                                onClick={() => {
+                                  setSelectedShareInvite(invite);
+                                  setShareModalOpen(true);
+                                }}
+                                style={{ background: 'none', border: 'none', color: 'var(--accent-orange, #f68b1f)', cursor: 'pointer', padding: '6px' }}
+                                title="Share Invitation Settings & Options"
+                              >
+                                <Share2 size={18} />
+                              </button>
+                              <button 
                                 onClick={() => handleCopyInviteLink(invite)}
                                 style={{ background: 'none', border: 'none', color: '#60a5fa', cursor: 'pointer', padding: '6px' }}
                                 title="Copy Invitation Link to Clipboard"
@@ -379,7 +392,7 @@ const UserManagement = () => {
                               </button>
                               <button 
                                 onClick={() => handleResendInvite(invite)}
-                                style={{ background: 'none', border: 'none', color: 'var(--accent-orange, #f68b1f)', cursor: 'pointer', padding: '6px' }}
+                                style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: '6px' }}
                                 title={`Resend invitation email to ${invite.email}`}
                               >
                                 <Send size={18} />
@@ -408,6 +421,12 @@ const UserManagement = () => {
         </div>
 
       </div>
+
+      <ShareInviteModal 
+        isOpen={shareModalOpen} 
+        onClose={() => setShareModalOpen(false)} 
+        invite={selectedShareInvite} 
+      />
     </div>
   );
 };
