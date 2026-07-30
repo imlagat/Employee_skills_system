@@ -241,18 +241,22 @@ const Settings = () => {
                   <label>Email Address</label>
                   <input type="email" value={profileData.email} onChange={e => setProfileData({...profileData, email: e.target.value})} />
                 </div>
-                <div className="form-group">
-                  <label>Phone Number</label>
-                  <input type="tel" value={profileData.phone} onChange={e => setProfileData({...profileData, phone: e.target.value})} />
-                </div>
+                {user?.role !== 'admin' && (
+                  <div className="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" value={profileData.phone} onChange={e => setProfileData({...profileData, phone: e.target.value})} />
+                  </div>
+                )}
                 <div className="form-group">
                   <label>Job Title / Role</label>
                   <input type="text" value={user?.role === 'admin' ? 'System Administrator' : 'Employee'} readOnly style={{ opacity: 0.8 }} />
                 </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label>Bio</label>
-                  <textarea rows="3" value={profileData.bio} onChange={e => setProfileData({...profileData, bio: e.target.value})}></textarea>
-                </div>
+                {user?.role !== 'admin' && (
+                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                    <label>Bio</label>
+                    <textarea rows="3" value={profileData.bio} onChange={e => setProfileData({...profileData, bio: e.target.value})}></textarea>
+                  </div>
+                )}
 
                 {/* Part 2 & 3: Medical Bio Data & Emergency Contacts (Employees only, hidden for Admins) */}
                 {user?.role !== 'admin' && (
