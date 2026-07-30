@@ -227,6 +227,7 @@ else:
     EMAIL_HOST_PASSWORD = _env_pass
 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='superposlish@gmail.com')
+RESEND_API_KEY = config('RESEND_API_KEY', default='')
 
 # ------------------------------------------------------------------
 # AI Integrations

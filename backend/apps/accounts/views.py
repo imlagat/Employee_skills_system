@@ -145,17 +145,14 @@ class SignupView(views.APIView):
         
         # Send Email Asynchronously
         import threading
+        from .utils import send_system_email
+
         def send_otp_email():
-            try:
-                send_mail(
-                    'Verify your SkillMatrix Account',
-                    f'Welcome to SkillMatrix! Your 6-digit verification code is: {otp.otp_code}',
-                    settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
-                    [email],
-                    fail_silently=False,
-                )
-            except Exception as e:
-                print(f"\n[Verification Code Debug] Registration OTP for {email}: {otp.otp_code}\nError: {e}\n")
+            send_system_email(
+                'Verify your SkillMatrix Account',
+                f'Welcome to SkillMatrix! Your 6-digit verification code is: {otp.otp_code}\n\nPlease enter this code on the verification page to activate your account.',
+                [email]
+            )
         
         threading.Thread(target=send_otp_email).start()
         
@@ -222,25 +219,18 @@ class ResendOTPView(views.APIView):
 
         # Send Email Asynchronously
         import threading
+        from .utils import send_system_email
+
         def send_resend_otp_email():
-            try:
-                subject = "Verify Your Email - SkillMatrix"
-                message = (
-                    f"Hello {user.first_name or user.username},\n\n"
-                    f"Your 6-digit email verification code is: {otp.otp_code}\n\n"
-                    f"This code will expire in 15 minutes.\n\n"
-                    f"Best regards,\n"
-                    f"SkillMatrix Team"
-                )
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
-                    [email],
-                    fail_silently=False,
-                )
-            except Exception as e:
-                print(f"\n[RESEND OTP DEBUG] Verification OTP for {email}: {otp.otp_code}\nError: {e}\n")
+            subject = "Verify Your Email - SkillMatrix"
+            message = (
+                f"Hello {user.first_name or user.username},\n\n"
+                f"Your 6-digit email verification code is: {otp.otp_code}\n\n"
+                f"This code will expire in 15 minutes.\n\n"
+                f"Best regards,\n"
+                f"SkillMatrix Team"
+            )
+            send_system_email(subject, message, [email])
 
         threading.Thread(target=send_resend_otp_email).start()
 
@@ -310,28 +300,20 @@ class PasswordResetRequestView(views.APIView):
         
         # Send email asynchronously in a background thread
         import threading
+        from .utils import send_system_email
+
         def send_reset_email():
-            try:
-                subject = "Password Reset Verification Code - SkillMatrix"
-                message = (
-                    f"Hello,\n\n"
-                    f"We received a request to reset the password for your SkillMatrix account.\n\n"
-                    f"Your 6-digit verification code is: {otp.otp_code}\n\n"
-                    f"Please enter this code on the website to reset your password.\n\n"
-                    f"If you did not request this, please ignore this email.\n\n"
-                    f"Best regards,\n"
-                    f"SkillMatrix Team"
-                )
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                    fail_silently=False
-                )
-            except Exception as e:
-                # Print to stdout in case of SMTP failure (useful for local debugging)
-                print(f"\n[PASSWORD RESET DEBUG] Async Reset OTP for {email}: {otp.otp_code}\nError: {e}\n")
+            subject = "Password Reset Verification Code - SkillMatrix"
+            message = (
+                f"Hello,\n\n"
+                f"We received a request to reset the password for your SkillMatrix account.\n\n"
+                f"Your 6-digit verification code is: {otp.otp_code}\n\n"
+                f"Please enter this code on the website to reset your password.\n\n"
+                f"If you did not request this, please ignore this email.\n\n"
+                f"Best regards,\n"
+                f"SkillMatrix Team"
+            )
+            send_system_email(subject, message, [email])
 
         threading.Thread(target=send_reset_email).start()
         
@@ -448,18 +430,10 @@ class InviteUserView(views.APIView):
 
         # Send email asynchronously in a background thread
         import threading
+        from .utils import send_system_email
+
         def send_invite_email():
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                    fail_silently=False
-                )
-            except Exception as e:
-                # Print to stdout in case of SMTP failure (useful for local debugging)
-                print(f"\n[INVITATION DEBUG] Async Invitation Link for {email}: {invite_link}\nError: {e}\n")
+            send_system_email(subject, message, [email])
 
         threading.Thread(target=send_invite_email).start()
 
@@ -506,18 +480,10 @@ class ResendInvitationView(views.APIView):
         )
 
         import threading
-        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@skillmatrix.com')
+        from .utils import send_system_email
+
         def send_invite_email():
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    from_email,
-                    [invitation.email],
-                    fail_silently=False
-                )
-            except Exception as e:
-                print(f"\n[RESEND INVITATION DEBUG] Async Invitation Link for {invitation.email}: {invite_link}\nError: {e}\n")
+            send_system_email(subject, message, [invitation.email])
 
         threading.Thread(target=send_invite_email).start()
 
@@ -623,26 +589,22 @@ class AcceptInviteView(views.APIView):
                 related_object_id=employee.id
             )
 
+        from .utils import send_system_email
         def notify_admins_via_email():
             for admin_usr in admin_users:
                 if admin_usr.email:
-                    try:
-                        send_mail(
-                            'New Employee Account Created - Verification Required',
-                            f"Hello {admin_usr.first_name or admin_usr.username},\n\n"
-                            f"A new employee account has been created via invitation:\n"
-                            f"Name: {user.first_name} {user.last_name}\n"
-                            f"Email: {user.email}\n"
-                            f"Role: {user.role.capitalize()}\n\n"
-                            f"The account is currently inactive pending your admin verification.\n"
-                            f"Please log in to SkillMatrix to review and approve the user account.\n\n"
-                            f"Best regards,\nSkillMatrix Team",
-                            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@skillmatrix.com',
-                            [admin_usr.email],
-                            fail_silently=True
-                        )
-                    except Exception as e:
-                        print(f"Failed to send admin notification email to {admin_usr.email}: {e}")
+                    subject = 'New Employee Account Created - Verification Required'
+                    body = (
+                        f"Hello {admin_usr.first_name or admin_usr.username},\n\n"
+                        f"A new employee account has been created via invitation:\n"
+                        f"Name: {user.first_name} {user.last_name}\n"
+                        f"Email: {user.email}\n"
+                        f"Role: {user.role.capitalize()}\n\n"
+                        f"The account is currently inactive pending your admin verification.\n"
+                        f"Please log in to SkillMatrix to review and approve the user account.\n\n"
+                        f"Best regards,\nSkillMatrix Team"
+                    )
+                    send_system_email(subject, body, [admin_usr.email])
 
         threading.Thread(target=notify_admins_via_email).start()
 
