@@ -63,6 +63,10 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         from apps.accounts.models import User
+        role = validated_data.get('role', 'employee')
+        if role == 'admin':
+            raise serializers.ValidationError({'role': 'Admin accounts cannot be created via employee creation. Admin details are managed separately.'})
+
         user_data = {
             'username': validated_data.pop('username', validated_data.get('email', '')),
             'first_name': validated_data.pop('first_name', ''),
@@ -78,6 +82,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
         return employee
 
     def update(self, instance, validated_data):
+        request = self.context.get('request')
+        is_me_action = request and getattr(getattr(request, 'parser_context', {}).get('view'), 'action', None) == 'me'
+        if instance.user and instance.user.role == 'admin' and not is_me_action:
+            raise serializers.ValidationError({'error': 'Admin details can only be edited in the profile section.'})
+
         user = instance.user
         if 'first_name' in validated_data:
             user.first_name = validated_data.pop('first_name')
@@ -86,7 +95,10 @@ class EmployeeSerializer(serializers.ModelSerializer):
         if 'email' in validated_data:
             user.email = validated_data.pop('email')
         if 'role' in validated_data:
-            user.role = validated_data.pop('role')
+            new_role = validated_data.pop('role')
+            if new_role == 'admin' and user.role != 'admin':
+                raise serializers.ValidationError({'role': 'Cannot elevate role to admin here.'})
+            user.role = new_role
         if 'is_active' in validated_data:
             user.is_active = validated_data.get('is_active')
         user.save()

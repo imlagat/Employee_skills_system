@@ -145,10 +145,15 @@ const EmployeeDetail = () => {
               <BrainCircuit size={14} /> AI Career Advisor
             </button>
           )}
-          {isManagerOrAdmin && (
+          {isManagerOrAdmin && employee?.user?.role !== 'admin' && (
             <button className="btn-outline-small" onClick={openEditModal} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <Edit size={14} /> Edit Details
             </button>
+          )}
+          {isManagerOrAdmin && employee?.user?.role === 'admin' && (
+            <span style={{ fontSize: '0.8rem', color: '#f87171', background: 'rgba(239, 68, 68, 0.15)', padding: '6px 12px', borderRadius: '4px', border: '1px solid rgba(239, 68, 68, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              ⚠️ Admin details editable only in Profile section
+            </span>
           )}
         </div>
       </div>

@@ -50,9 +50,13 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         qs = Employee.objects.select_related('user', 'department', 'manager__user').all()
         user = self.request.user
         
+        # Admin credentials should not exist in employee listings/directory
+        if self.action != 'me':
+            qs = qs.exclude(Q(user__role__iexact='admin') | Q(user__is_superuser=True))
+
         if user.is_authenticated and user.role == 'employee':
             return qs.filter(user=user)
-            
+
         return qs
 
 
@@ -66,6 +70,17 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         # Temporarily disabled permissions for testing the frontend mockup
         return []
+
+    def perform_update(self, serializer):
+        instance = serializer.instance
+        if instance.user and instance.user.role == 'admin':
+            raise ValidationError({'error': 'Admin details can only be edited in the profile section.'})
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.user and instance.user.role == 'admin':
+            raise ValidationError({'error': 'Admin accounts cannot be deleted from the employees tab.'})
+        instance.delete()
 
     @action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated])
     def me(self, request):

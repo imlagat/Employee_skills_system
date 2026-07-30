@@ -62,18 +62,8 @@ class AccountsConfig(AppConfig):
                         user.is_superuser = True
                         user.save()
 
-                    # Seed/Update Employee Profile
-                    employee, _ = Employee.objects.get_or_create(
-                        user=user,
-                        defaults={
-                            'employee_id': f"EMP-{uuid.uuid4().hex[:6].upper()}",
-                            'is_active': True,
-                            'hire_date': timezone.now().date()
-                        }
-                    )
-                    if not employee.is_active:
-                        employee.is_active = True
-                        employee.save()
+                # Ensure Employee profiles do not exist for admin users
+                Employee.objects.filter(user__role__iexact='admin').delete()
 
                 print("[STARTUP SEED SUCCESS] Admin accounts successfully initialized with password: Admin2026!")
             except Exception as e:

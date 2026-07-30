@@ -70,7 +70,7 @@ const Layout = ({ children }) => {
         <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <div className={`main-wrapper ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
           <Topbar toggleSidebar={toggleSidebar} />
-          <main className="layout-content">
+          <main className="main-content">
             {children}
           </main>
           <AIChatbox />

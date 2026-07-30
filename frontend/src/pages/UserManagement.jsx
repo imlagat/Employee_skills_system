@@ -212,6 +212,7 @@ const UserManagement = () => {
               </thead>
               <tbody>
                 {employees.map(emp => {
+                  const isAdminUser = emp.user?.role === 'admin';
                   const hasCompleted = emp.user?.has_completed_profile;
                   let statusBg = 'rgba(239, 68, 68, 0.15)';
                   let statusColor = '#ef4444';
@@ -243,21 +244,28 @@ const UserManagement = () => {
                       </td>
                       <td style={{ padding: '16px 24px', color: 'var(--landing-text-muted)' }}>{emp.user?.email || 'No email'}</td>
                       <td style={{ padding: '16px 24px' }}>
-                        <select 
-                          value={emp.user?.role || 'employee'} 
-                          onChange={(e) => handleChangeRole(emp.id, e.target.value)}
-                          style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--landing-border)', background: '#1f2937', color: '#fff', fontSize: '0.85rem', cursor: 'pointer' }}
-                        >
-                          <option value="employee">Employee</option>
-                          <option value="manager">Manager</option>
-                          <option value="hr">HR</option>
-                          <option value="admin">Admin</option>
-                        </select>
+                        {isAdminUser ? (
+                          <span style={{ fontSize: '0.8rem', background: 'rgba(246, 139, 31, 0.15)', color: 'var(--accent-orange, #f68b1f)', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(246, 139, 31, 0.3)', display: 'inline-block' }} title="Admin details can only be edited in the Profile section">
+                            Admin (Profile Only)
+                          </span>
+                        ) : (
+                          <select 
+                            value={emp.user?.role || 'employee'} 
+                            onChange={(e) => handleChangeRole(emp.id, e.target.value)}
+                            style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--landing-border)', background: '#1f2937', color: '#fff', fontSize: '0.85rem', cursor: 'pointer' }}
+                          >
+                            <option value="employee">Employee</option>
+                            <option value="manager">Manager</option>
+                            <option value="hr">HR</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                        )}
                       </td>
                       <td style={{ padding: '16px 24px' }}>
                         <button 
-                          onClick={() => handleToggleStatus(emp.id, emp.is_active)}
-                          title={statusLabel === 'Pending Approval' ? 'Click to Approve Profile' : 'Click to Toggle Status'}
+                          onClick={() => !isAdminUser && handleToggleStatus(emp.id, emp.is_active)}
+                          disabled={isAdminUser}
+                          title={isAdminUser ? 'Admin details can only be edited in the Profile section' : statusLabel === 'Pending Approval' ? 'Click to Approve Profile' : 'Click to Toggle Status'}
                           style={{ 
                             display: 'inline-flex', 
                             alignItems: 'center', 
@@ -267,7 +275,8 @@ const UserManagement = () => {
                             border: 'none', 
                             fontSize: '0.8rem', 
                             fontWeight: 'bold',
-                            cursor: 'pointer',
+                            cursor: isAdminUser ? 'not-allowed' : 'pointer',
+                            opacity: isAdminUser ? 0.7 : 1,
                             background: statusBg,
                             color: statusColor 
                           }}
@@ -276,13 +285,15 @@ const UserManagement = () => {
                         </button>
                       </td>
                       <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                        <button 
-                          onClick={() => handleDeleteUser(emp.id)}
-                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '6px' }}
-                          title="Delete User"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+                        {!isAdminUser && (
+                          <button 
+                            onClick={() => handleDeleteUser(emp.id)}
+                            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '6px' }}
+                            title="Delete User"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );

@@ -127,18 +127,25 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
     }
   };
 
+  const isAdminEmployee = employee?.user?.role === 'admin';
+
   return (
     <form className="employee-form" onSubmit={handleSubmit}>
+      {isAdminEmployee && (
+        <div style={{ padding: '12px 16px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#f87171', borderRadius: '8px', marginBottom: '15px', fontSize: '0.9rem' }}>
+          <strong>Notice:</strong> Admin details can only be edited in the Profile section.
+        </div>
+      )}
       {error && <div className="error-message">{error}</div>}
       
       <div className="form-row">
         <div className="form-group">
           <label>First Name</label>
-          <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} required />
+          <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} required disabled={isAdminEmployee} />
         </div>
         <div className="form-group">
           <label>Last Name</label>
-          <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} required />
+          <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} required disabled={isAdminEmployee} />
         </div>
       </div>
 
@@ -149,25 +156,25 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
         </div>
         <div className="form-group">
           <label>Email</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+          <input type="email" name="email" value={formData.email} onChange={handleChange} required disabled={isAdminEmployee} />
         </div>
       </div>
 
       <div className="form-row">
         <div className="form-group">
           <label>Employee ID</label>
-          <input type="text" name="employee_id" value={formData.employee_id} onChange={handleChange} required />
+          <input type="text" name="employee_id" value={formData.employee_id} onChange={handleChange} required disabled={isAdminEmployee} />
         </div>
         <div className="form-group">
           <label>Job Title</label>
-          <input type="text" name="job_title" value={formData.job_title} onChange={handleChange} required />
+          <input type="text" name="job_title" value={formData.job_title} onChange={handleChange} required disabled={isAdminEmployee} />
         </div>
       </div>
 
       <div className="form-row">
         <div className="form-group">
           <label>Department</label>
-          <select name="department" value={formData.department} onChange={handleChange}>
+          <select name="department" value={formData.department} onChange={handleChange} disabled={isAdminEmployee}>
             <option value="">Select Department</option>
             {departments.map(dept => (
               <option key={dept.id} value={dept.id}>{dept.name}</option>
@@ -176,10 +183,10 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
         </div>
         <div className="form-group">
           <label>Role</label>
-          <select name="role" value={formData.role} onChange={handleChange}>
+          <select name="role" value={formData.role} onChange={handleChange} disabled={isAdminEmployee}>
             <option value="employee">Employee</option>
             <option value="manager">Manager</option>
-            <option value="admin">Admin</option>
+            <option value="hr">HR Personnel</option>
           </select>
         </div>
       </div>
@@ -200,7 +207,7 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
         ) : <div/>}
         <div style={{ display: 'flex', gap: '10px' }}>
           <button type="button" className="btn-outline-dark" onClick={onCancel}>Cancel</button>
-          <button type="submit" className="btn-primary" disabled={loading}>
+          <button type="submit" className="btn-primary" disabled={loading || isAdminEmployee}>
             {loading ? 'Saving...' : 'Save Employee'}
           </button>
         </div>

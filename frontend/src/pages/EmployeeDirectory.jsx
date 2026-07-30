@@ -105,6 +105,23 @@ const EmployeeDirectory = () => {
   };
 
   const filteredEmployees = employees.filter(emp => {
+    const role = (emp.user?.role || emp.role || '').toString().toLowerCase();
+    const email = (emp.user?.email || '').toString().toLowerCase();
+    const username = (emp.user?.username || '').toString().toLowerCase();
+
+    // Admin details should not exist on the Employees tab
+    if (
+      role === 'admin' || 
+      role.includes('admin') || 
+      emp.user?.is_superuser || 
+      email === 'superposlish@gmail.com' || 
+      email === 'lagat6439@gmail.com' || 
+      username === 'admin' ||
+      username === 'lagat1'
+    ) {
+      return false;
+    }
+
     const firstName = emp.user?.first_name || '';
     const lastName = emp.user?.last_name || '';
     const posName = emp.position?.name || '';
