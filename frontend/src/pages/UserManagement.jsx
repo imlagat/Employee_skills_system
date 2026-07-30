@@ -116,10 +116,13 @@ const UserManagement = () => {
     }
   };
 
-  const handleResendInvite = async (inviteId) => {
+  const handleResendInvite = async (invite) => {
     try {
-      await api.post(`auth/invitations/${inviteId}/resend/`);
-      toast.success('Invitation email resent successfully!');
+      const targetEmail = invite?.email || 'user';
+      const targetId = invite?.id || invite;
+      await api.post(`auth/invitations/${targetId}/resend/`);
+      toast.success(`Invitation email resent to ${targetEmail}!`);
+      fetchUsers();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to resend invitation email.');
     }
@@ -135,7 +138,7 @@ const UserManagement = () => {
   if (loading && employees.length === 0) {
     return (
       <div className="landing-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-        <p style={{ color: 'var(--landing-text-muted)', fontSize: '1.2rem' }}>Loading user administration panel...</p>
+        <p style={{ color: 'var(--landing-text-muted)', fontSize: '1.2rem' }}>Loading user admin panel...</p>
       </div>
     );
   }
@@ -147,7 +150,7 @@ const UserManagement = () => {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '32px' }}>
           <div>
-            <h1 style={{ fontSize: '2.25rem', fontWeight: 800, margin: '0 0 8px 0' }}>User Administration</h1>
+            <h1 style={{ fontSize: '2.25rem', fontWeight: 800, margin: '0 0 8px 0' }}>User Admin</h1>
             <p style={{ color: 'var(--landing-text-muted)', margin: 0 }}>Invite new team members and manage existing system credentials.</p>
           </div>
           <button className="landing-btn landing-btn-outline" onClick={fetchUsers} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -182,7 +185,7 @@ const UserManagement = () => {
                 <option value="employee">Employee</option>
                 <option value="manager">Manager</option>
                 <option value="hr">HR Personnel</option>
-                <option value="admin">Administrator</option>
+                <option value="admin">User Admin</option>
               </select>
             </div>
             <button type="submit" disabled={inviteLoading} className="landing-btn landing-btn-primary" style={{ padding: '12px 24px' }}>
@@ -362,9 +365,9 @@ const UserManagement = () => {
                           {!invite.is_accepted && (
                             <>
                               <button 
-                                onClick={() => handleResendInvite(invite.id)}
+                                onClick={() => handleResendInvite(invite)}
                                 style={{ background: 'none', border: 'none', color: 'var(--accent-orange, #f68b1f)', cursor: 'pointer', padding: '6px' }}
-                                title="Resend Invitation Email"
+                                title={`Resend invitation email to ${invite.email}`}
                               >
                                 <Send size={18} />
                               </button>

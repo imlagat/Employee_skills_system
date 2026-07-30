@@ -475,6 +475,10 @@ class ResendInvitationView(views.APIView):
         except UserInvitation.DoesNotExist:
             return Response({'error': 'Active invitation not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+        # Extend / renew invitation token expiration window
+        invitation.expires_at = timezone.now() + timezone.timedelta(days=7)
+        invitation.save()
+
         frontend_base_url = getattr(settings, 'FRONTEND_URL', 'https://employee-skills-system.vercel.app')
         invite_link = f"{frontend_base_url}/accept-invite/{invitation.token}"
 
@@ -492,12 +496,13 @@ class ResendInvitationView(views.APIView):
         )
 
         import threading
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@skillmatrix.com')
         def send_invite_email():
             try:
                 send_mail(
                     subject,
                     message,
-                    settings.DEFAULT_FROM_EMAIL,
+                    from_email,
                     [invitation.email],
                     fail_silently=False
                 )

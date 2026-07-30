@@ -64,7 +64,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       title: 'Administration',
       restricted: true,
       items: [
-        { label: 'User Management', icon: <Users size={18} />, path: '/admin/users' },
+        { label: 'User Admin', icon: <Users size={18} />, path: '/admin/users' },
         { label: 'Settings', icon: <Settings size={18} />, path: '/admin/settings' },
       ]
     }
